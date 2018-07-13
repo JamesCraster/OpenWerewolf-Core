@@ -1,34 +1,11 @@
-# OpenWerewolf
+# OpenWerewolf : Core
 
-> A fully-featured online multiplayer werewolf game.
+> A game engine for making multiplayer text-based games
 
-## Play now at https://www.openwerewolf.com/
-
-## Features:
-* You can run multiple games at once using the lobby system.
-* The core engine is general. Use it to build and host whatever games you want.
-* The games are open source under AGPL-3.0.
-* The core engine and client are open source under Apache-2.0 so can be used commercially.
-* Includes spam and profanity filters.
+## Play OpenWerewolf now at https://www.openwerewolf.com
 
 ## Screenshot:
 ![An image of the OpenWerewolf client](https://github.com/JamesCraster/OpenWerewolf/blob/master/Screenshot.png)
-
-## The Games:
-* OneDay: During the night, your cards are stolen, swapped, carefully inspected and drunkenly taken by accident.
-It's up to you to piece together the truth (if you're a townie) or bluff your way to victory (if you're an evil werewolf),
-in the Trial, where you'll be voting to kill the werewolves among you. For 3-7 players.
-
-* Classic: A classic game of werewolf lasting multiple nights. Featuring werewolves, doctors, cops and vigilantes.
-
-* Mafia execution, Mission games haven't been started yet: maybe you could help write them?
-## Install and run
-* Grab the latest [release](https://github.com/JamesCraster/OpenWerewolf/releases) (choose OpenWerewolf.zip).
-
-* [Install Node.js](https://nodejs.org/en/)  
-
-* Unzip OpenWerewolf.zip, and run: `node app.js`  
-
 
 ## Contribute:
 All contributors are welcome. Read the [guide.](https://github.com/JamesCraster/OpenWerewolf/wiki/Contributing)
@@ -37,10 +14,6 @@ All contributors are welcome. Read the [guide.](https://github.com/JamesCraster/
 Files are listed to the right.
 
 ## Legal Info:
-All of the source code is free/open source.
-Some of the code files are licensed under AGPL-3.0. Some of the code files are licensed under Apache-2.0.
-Every file states which license it is under.
-By contributing to this repository, you agree that your contributions to any particular file are licensed under the same license that that file had directly before your contribution was included, i.e contributions to AGPL-3.0 files are under AGPL-3.0, and contributions to Apache-2.0 files are under Apache-2.0.
 Artwork, music, logos and fonts may be proprietary.
 
 I want to avoid confusion between the OpenWerewolf site that I run and the sites that others may run.
