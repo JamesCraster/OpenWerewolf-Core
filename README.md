@@ -2,8 +2,6 @@
 
 > A game engine for making multiplayer text-based games
 
-## Play OpenWerewolf now at https://www.openwerewolf.com
-
 ## Screenshot:
 ![An image of the OpenWerewolf client](https://github.com/JamesCraster/OpenWerewolf/blob/master/Screenshot.png)
 
