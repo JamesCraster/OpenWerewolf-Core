@@ -35,3 +35,11 @@ Core/server.js
 Core/utils.js
 Core/game.js
 Client/google2d9c2c2f48980e51.html
+Games/.gitignore
+Games/LICENSE
+Games/README.md
+Games/Screenshot.png
+Games/Classic/Classic.ts
+Games/Classic/LICENSE
+Games/OneDay/LICENSE
+Games/OneDay/oneDay.ts
