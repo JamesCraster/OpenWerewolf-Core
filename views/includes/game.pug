@@ -13,27 +13,29 @@ div(style="margin-top:30px")
     p(id="mainGameName" style="display:inline") Loading...
     button(id="leaveGame") Leave Game
 
-div(id="leftBox" class="sideBox")
-    div(id="innerLeftBox" class="innerSideBox")
-        ul(id="roleNames")
-            li Time: 00:00
-            li Roles:
+
    
-div(id="outer")
-    div(id="inner")
-        //ul(id="chatbox")
-        //    li OpenWerewolf (C) 2017 James Craster
+div(id="outer" style="width:50%")
+    div(id="inner" style="margin-left:auto")
+        ul(id="chatbox")
+            li OpenWerewolf (C) 2017 James Craster
             li
                 a(href="https://github.com/JamesCraster/OpenWerewolf" target="_blank") Github
                 a(class="menulink" href="https://discord.gg/AYmr9vc" target="_blank") Discord
             li Welcome to OpenWerewolf. 
                 b Please type in a nickname you'd like to use.
     // Form for entering messages
-    form
+    form(style="margin-left:auto")
         input(id="msg" autocomplete="off" placeholder="Type Here" maxlength="150" autofocus)
         input(id="submit" type="submit" value="Submit")
 
-div(id="rightBox" class="sideBox")
+div(id="leftBox" class="sideBox" style="width:50%;")
+    div(id="innerLeftBox" class="innerSideBox" style="overflow-y:hidden;width:90%; margin-right:auto; margin-left:0px")
+        //ul(id="roleNames")
+            li Time: 00:00
+            li Roles:
+
+//div(id="rightBox" class="sideBox")
     div(id="innerRightBox" class="innerSideBox")
         ul(id="playerNames")
             li Players:

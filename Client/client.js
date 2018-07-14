@@ -142,20 +142,16 @@ function restart() {
   $('#leaveGame').css('background-color', "#4c4c4c");
   $('#leaveGame').off('click');
 }
-PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
-var app = new PIXI.Application(800, 600, {
-  backgroundColor: 0x1099bb
-});
-var cardTexture = PIXI.Texture.fromImage('Assets/Card.png');
-var card = new PIXI.Sprite(cardTexture);
-card.flipped = false;
-var aceTexture = PIXI.Texture.fromImage("Assets/Ace.png");
+
+//var cardTexture = PIXI.Texture.fromImage('Assets/Card.png');
+//var card = new PIXI.Sprite(cardTexture);
+//card.flipped = false;
+//var aceTexture = PIXI.Texture.fromImage("Assets/Ace.png");
 //card.setTexture(aceTexture);
 $(function () {
   var socket = io();
 
-
-  $('#inner').append(app.view);
+  /*
   // create a new Sprite from an image path
   card.interactive = true;
   card.on('pointerdown', function () {
@@ -182,8 +178,8 @@ $(function () {
     // just for fun, let's rotate mr rabbit a little
     // delta is 1 if running at 100% performance
     // creates frame-independent transformation
-    card.rotation += 0.1 * delta;
-  });
+    //card.rotation += 0.1 * delta;
+  });*/
 
 
 
@@ -304,6 +300,9 @@ $(function () {
       }
     }
   });
+  socket.on("dealCard", function (xPos, yPos) {
+    createBunny(xPos, yPos);
+  });
   //removes player from lobby list
   socket.on("removePlayerFromLobbyList", function (name, game) {
     var spanList = $('#container div:nth-child(' + (game + 1).toString() + ') p:last span:first span');
@@ -355,7 +354,9 @@ $(function () {
     }, 250);
   });
   $('#msg').focusout(function () {
-    setTimeout($('#msg').focus(), 30);
+    setTimeout(function () {
+      $('#msg').focus()
+    }, 30);
   });
 });
 

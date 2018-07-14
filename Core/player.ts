@@ -48,7 +48,7 @@ export class Player {
         this._username = "randomuser";
         this._session = session;
     }
-    public resetAfterGame():void{
+    public resetAfterGame(): void {
         this._registered = false;
         this._inGame = false;
         this._username = "randomuser";
@@ -208,5 +208,8 @@ export class Player {
     }
     public equals(otherPlayer: Player): boolean {
         return this.id == otherPlayer.id;
+    }
+    public dealCard(xPos: number, yPos: number, value: number) {
+        this._socket.emit('dealCard', xPos, yPos, value);
     }
 }
