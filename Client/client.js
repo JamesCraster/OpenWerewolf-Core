@@ -10,7 +10,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-
+var resizeTimer;
 var globalNow = 0;
 var globalTime = 0;
 var globalWarn = -1;
@@ -24,6 +24,23 @@ var newPlayerSound = new Audio("162476__kastenfrosch__gotitem.mp3");
 newPlayerSound.volume = 0.2;
 var lostPlayerSound = new Audio("162465__kastenfrosch__lostitem.mp3");
 lostPlayerSound.volume = 0.2;
+
+class Game {
+  constructor() {
+    this.players = [];
+    this.cards = [];
+  }
+}
+class Card {
+  constructor() {
+    this.flipped = false;
+    this.sprite = PIXI.Sprite.fromImage('Assets/Card.png');
+    this.sprite.on('pointerdown', function () {
+      this.sprite = PIXI.Sprite.fromImage('Assets/Ace.png');
+    });
+  }
+}
+var game = new Game();
 
 function isClientScrolledDown() {
   return Math.abs($("#inner")[0].scrollTop + $('#inner')[0].clientHeight - $("#inner")[0].scrollHeight) <= 10;
@@ -125,8 +142,51 @@ function restart() {
   $('#leaveGame').css('background-color', "#4c4c4c");
   $('#leaveGame').off('click');
 }
+PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+var app = new PIXI.Application(800, 600, {
+  backgroundColor: 0x1099bb
+});
+var cardTexture = PIXI.Texture.fromImage('Assets/Card.png');
+var card = new PIXI.Sprite(cardTexture);
+card.flipped = false;
+var aceTexture = PIXI.Texture.fromImage("Assets/Ace.png");
+//card.setTexture(aceTexture);
 $(function () {
   var socket = io();
+
+
+  $('#inner').append(app.view);
+  // create a new Sprite from an image path
+  card.interactive = true;
+  card.on('pointerdown', function () {
+    if (card.flipped) {
+      card.texture = cardTexture;
+      card.flipped = false;
+    } else {
+      card.texture = aceTexture;
+      card.flipped = true;
+    }
+  });
+  // center the sprite's anchor point
+  card.anchor.set(0.5);
+
+  // move the sprite to the center of the screen
+  card.x = app.screen.width / 2;
+  card.y = app.screen.height / 2;
+  card.scale.x = 2;
+  card.scale.y = 2;
+  app.stage.addChild(card);
+
+  // Listen for animate update
+  app.ticker.add(function (delta) {
+    // just for fun, let's rotate mr rabbit a little
+    // delta is 1 if running at 100% performance
+    // creates frame-independent transformation
+    card.rotation += 0.1 * delta;
+  });
+
+
+
 
   $("form").submit(function () {
     //prevent submitting empty messages
@@ -166,7 +226,7 @@ $(function () {
   socket.on("notify", function () {
     notificationSound.play();
   });
-  socket.on("newGame", function () {
+  socket.on("newGame", function (numberOfPlayers) {
     $('#leaveGame').css('background-color', "#4c4c4c");
     inGame = true;
     $('#leaveGame').off('click');
@@ -286,7 +346,13 @@ $(function () {
     }
   }
   $(window).resize(function () {
-    $('#inner')[0].scrollTop = $('#inner')[0].scrollHeight;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+
+      $('#inner')[0].scrollTop = $('#inner')[0].scrollHeight;
+      app.renderer.resize($('#inner').width(), $('#inner').height());
+
+    }, 250);
   });
   $('#msg').focusout(function () {
     setTimeout($('#msg').focus(), 30);
@@ -297,10 +363,14 @@ function transitionToGame(gameName) {
   if (isSafari) {
     //get rid of animations
     $('#lobby').hide();
-    $('#topLevel').show();
+    $('#topLevel').show(function () {
+      app.renderer.resize($('#inner').width(), $('#inner').height());
+    });
   } else {
     $('#lobby').hide("slow");
-    $('#topLevel').show("slow");
+    $('#topLevel').show("slow", function () {
+      app.renderer.resize($('#inner').width(), $('#inner').height());
+    });
   }
   if (gameName) {
     $('#mainGameName').text(gameName);
