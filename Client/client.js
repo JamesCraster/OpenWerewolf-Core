@@ -14,6 +14,8 @@
 var globalNow = 0;
 var globalTime = 0;
 var globalWarn = -1;
+var gameClicked = false;
+var waitingForGame = false;
 var inGame = false;
 var isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
   navigator.userAgent && !navigator.userAgent.match('CriOS');
@@ -24,6 +26,8 @@ var newPlayerSound = new Audio("162476__kastenfrosch__gotitem.mp3");
 newPlayerSound.volume = 0.2;
 var lostPlayerSound = new Audio("162465__kastenfrosch__lostitem.mp3");
 lostPlayerSound.volume = 0.2;
+
+var socket = io();
 
 function isClientScrolledDown() {
   return Math.abs($("#inner")[0].scrollTop + $('#inner')[0].clientHeight - $("#inner")[0].scrollHeight) <= 10;
@@ -106,8 +110,9 @@ function lineThroughPlayer(msg) {
 }
 
 function restart() {
-  transitionToLobby();
+  transitionFromGameToLobby();
   inGame = false;
+  waitingForGame = false;
   registered = false;
   globalNow = 0;
   globalTime = 0;
@@ -122,11 +127,24 @@ function restart() {
   $('#chatbox').append('<li><a href="https://github.com/JamesCraster/OpenWerewolf" target="_blank"> Github</a>' +
     '<a class="menulink" href="https://discord.gg/AYmr9vc" target="_blank">Discord</a>');
   $('#chatbox').append('<li>Welcome to OpenWerewolf. <b> Please type in a nickname you\'d like to use.</b></li>');
-  $('#leaveGame').css('background-color', "#4c4c4c");
-  $('#leaveGame').off('click');
+  $('#leaveGame').css('background-color', "#3f0082");
+  $('#leaveGame').click(function () {
+    if (!inGame) {
+      transitionFromGameToLobby();
+      socket.emit('leaveGame');
+      restart();
+    }
+  });
 }
 $(function () {
-  var socket = io();
+
+  $('#leaveGame').css('background-color', "#3f0082");
+  $('#leaveGame').click(function () {
+    if (!inGame) {
+      transitionFromGameToLobby();
+      restart();
+    }
+  });
 
   $("form").submit(function () {
     //prevent submitting empty messages
@@ -146,16 +164,16 @@ $(function () {
     restart();
   });
   socket.on("registered", function () {
+    transitionFromLandingToLobby();
     registered = true;
     $('#leaveGame').css('background-color', "#3f0082");
     $('#leaveGame').click(function () {
       if (!inGame) {
-        transitionToLobby();
+        transitionFromGameToLobby();
         socket.emit('leaveGame');
         restart();
       }
     });
-
   });
   socket.on("clear", function () {
     $('ul').clear();
@@ -174,7 +192,7 @@ $(function () {
   socket.on("endChat", function () {
     $('#leaveGame').css('background-color', "#3f0082");
     $('#leaveGame').click(function () {
-      transitionToLobby();
+      transitionFromGameToLobby();
       socket.emit('leaveGame');
       restart();
     });
@@ -187,6 +205,9 @@ $(function () {
     } else if (sound == "LOSTPLAYER") {
       lostPlayerSound.play();
     }
+  });
+  socket.on("registrationError", function (error) {
+    $('#errors').append('<p style="color:red;font-size:18px;margin-top:15px;">Invalid username: ' + error);
   });
   $('document').resize(function () {
 
@@ -217,29 +238,46 @@ $(function () {
     globalWarn = warn;
   });
   $('.item').click(function () {
-    if (registered) {
-      transitionToGame();
+    gameClicked = true;
+    if (!waitingForGame) {
+      transitionFromLobbyToGame($(this).attr('name'));
     } else {
-      transitionToGame($(this).attr('name'));
+      transitionFromLobbyToGame();
     }
-    location.hash = 2;
-    if (!registered) {
-      $('#playerNames').empty();
-      $('#playerNames').append("<li>Players:</li>")
-      var usernameList = $(".item[number=" + $(this).attr('number') + "] .username");
-      for (i = 0; i < usernameList.length; i++) {
-        appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
+    location.hash = 3;
+    if ($(this).attr('inPlay') == "false") {
+      if (!waitingForGame) {
+        $('#playerNames').empty();
+        $('#playerNames').append("<li>Players:</li>")
+        var usernameList = $(".item[number=" + $(this).attr('number') + "] .username");
+        for (i = 0; i < usernameList.length; i++) {
+          appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
+        }
+        socket.emit("gameClick", $(this).attr('number'));
+        waitingForGame = true;
+      }
+    } else {
+      if (!waitingForGame) {
+        $('#playerNames').empty();
+        $('#playerNames').append("<li>Players:</li>")
+        var usernameList = $(".item[number=" + $(this).attr('number') + "] .username");
+        for (i = 0; i < usernameList.length; i++) {
+          appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
+        }
+        appendMessage("This game has already started, please join a different one.", '#chatbox', undefined, "#950d0d");
       }
     }
-    socket.emit("gameClick", $(this).attr('number'));
   });
+
   socket.on("updateGame", function (name, playerNames, playerColors, number, inPlay) {
     if (inPlay) {
       $('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
       $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("[IN PLAY]");
+      $('#container div:nth-child(' + number.toString() + ')').attr('inPlay', "true");
     } else {
       $('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
       $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("[OPEN]");
+      $('#container div:nth-child(' + number.toString() + ')').attr('inPlay', "false");
     }
     var div = $('#container div:nth-child(' + number.toString() + ') p:last span:first');
     div.empty();
@@ -287,41 +325,67 @@ $(function () {
     }
   });
   window.onhashchange = function () {
-    if (location.hash.length > 0) {
-      transitionToGame();
-    } else {
-      transitionToLobby();
+    if (location.hash == "") {
+      this.location.hash = 2;
+    } else if (location.hash == "#3" && gameClicked) {
+      transitionFromLobbyToGame();
+    } else if (location.hash == "#2") {
+      if (!waitingForGame) {
+        restart();
+      } else {
+        transitionFromGameToLobby();
+      }
     }
   }
   $(window).resize(function () {
     $('#inner')[0].scrollTop = $('#inner')[0].scrollHeight;
   });
   $('#msg').focusout(function () {
-    setTimeout($('#msg').focus(), 30);
+    setTimeout(function () {
+      $('#msg').focus()
+    }, 30);
   });
+  $('#registerForm').submit(function () {
+    $('#errors').empty();
+    socket.emit("message", $("#registerBox").val());
+    $("#registerBox").val("");
+  })
 });
 
-function transitionToGame(gameName) {
-  if (isSafari) {
-    //get rid of animations
-    $('#lobby').hide();
-    $('#topLevel').show();
-  } else {
-    $('#lobby').hide("slow");
-    $('#topLevel').show("slow");
-  }
-  if (gameName) {
-    $('#mainGameName').text(gameName);
-  }
-  $('#msg').focus();
+function transitionFromLandingToLobby() {
+  $('#landingPage').fadeOut('fast', function () {
+    $('#lobbyContainer').show("slow")
+    location.hash = '#2';
+  })
 }
 
-function transitionToLobby() {
-  if (isSafari) {
-    $('#topLevel').hide();
-    $('#lobby').show();
-  } else {
-    $('#topLevel').hide("slow");
-    $('#lobby').show("slow");
-  }
+function transitionFromLobbyToGame(gameName) {
+  $('#landingPage').fadeOut('fast', function () {
+    if (isSafari) {
+      //get rid of animations
+      $('#lobbyContainer').hide();
+      $('#topLevel').show();
+    } else {
+      $('#lobbyContainer').hide("slow");
+      $('#topLevel').show("slow");
+    }
+    if (gameName) {
+      $('#mainGameName').text(gameName);
+    }
+    $('#topLevel')[0].scrollTop = 0
+    $('#msg').focus();
+  });
+}
+
+function transitionFromGameToLobby() {
+  $('#landingPage').fadeOut('fast', function () {
+    if (isSafari) {
+      $('#topLevel').hide();
+      $('#lobbyContainer').show();
+    } else {
+      $('#topLevel').hide("slow");
+      $('#lobbyContainer').show("slow");
+    }
+    $('#lobbyContainer')[0].scrollTop = 0
+  });
 }

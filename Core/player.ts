@@ -48,10 +48,8 @@ export class Player {
         this._username = "randomuser";
         this._session = session;
     }
-    public resetAfterGame():void{
-        this._registered = false;
+    public resetAfterGame(): void {
         this._inGame = false;
-        this._username = "randomuser";
         this.data = {};
         this._game = -1;
         this._startVote = false;
@@ -208,5 +206,8 @@ export class Player {
     }
     public equals(otherPlayer: Player): boolean {
         return this.id == otherPlayer.id;
+    }
+    public registrationError(message: string) {
+        this._socket.emit('registrationError', message)
     }
 }

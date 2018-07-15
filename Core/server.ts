@@ -125,28 +125,28 @@ export class Server {
         var letters = /^[A-Za-z]+$/;
         for (var i = 0; i < this._players.length; i++) {
             if (this._players[i].username == username) {
-                player.send(
-                    "Invalid username: This username has already been taken by someone"
+                player.registrationError(
+                    "This username has already been taken by someone"
                 );
                 return false;
             }
         }
         if (username.length == 0) {
-            player.send("Invalid username: Cannot be 0 letters long");
+            player.registrationError("Cannot be 0 letters long");
             return false;
         }
         if (username.length > 10) {
-            player.send("Invalid username: Must be no more than 10 letters long");
+            player.registrationError("Must be no more than 10 letters long");
             return false;
         }
         if (!letters.test(username)) {
-            player.send(
-                "Invalid username: Must only contain letters (no numbers or punctuation)"
+            player.registrationError(
+                "Must only contain letters (no numbers or punctuation)"
             );
             return false;
         }
         if (grawlix.isObscene(username)) {
-            player.send("Invalid username: Usernames can't contain profanity");
+            player.registrationError("Usernames can't contain profanity");
             return false;
         }
         return true;
@@ -189,16 +189,16 @@ export class Server {
                 return;
             }
         }
-        if (player.gameClickedLast >= 0 && player.gameClickedLast < this._games.length) {
-            //get rid of spaces in name and make lowercase
-            msg = Server.cleanUpUsername(msg);
+        //if (player.gameClickedLast >= 0 && player.gameClickedLast < this._games.length) {
+        //get rid of spaces in name and make lowercase
+        msg = Server.cleanUpUsername(msg);
 
-            if (this.validateUsername(player, msg)) {
-                player.register();
-                player.setUsername(msg);
-                this._registeredPlayerCount++;
-            }
+        if (this.validateUsername(player, msg)) {
+            player.register();
+            player.setUsername(msg);
+            this._registeredPlayerCount++;
         }
+        //}
     }
     public receive(id: string, msg: string) {
         let player = this.getPlayer(id);
@@ -270,7 +270,7 @@ export class Server {
             //if the player is viewing the game, add joiner to their right bar
             if (this._players[i].game == game) {
                 this._players[i].rightSend(username, color);
-            } else if (!this._players[i].registered && this._players[i].gameClickedLast == game) {
+            } else if (!this._players[i].inGame && this._players[i].gameClickedLast == game) {
                 this._players[i].rightSend(username, color);
             }
         }
@@ -281,7 +281,7 @@ export class Server {
             //if the player is viewing the game, remove leaver from their right bar
             if (this._players[i].game == game) {
                 this._players[i].removeRight(username);
-            } else if (!this._players[i].registered && this._players[i].gameClickedLast == game) {
+            } else if (!this._players[i].inGame && this._players[i].gameClickedLast == game) {
                 this._players[i].removeRight(username);
             }
         }
