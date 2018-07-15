@@ -171,6 +171,14 @@ $(function () {
     inGame = true;
     $('#leaveGame').off('click');
   })
+  socket.on("endChat", function () {
+    $('#leaveGame').css('background-color', "#3f0082");
+    $('#leaveGame').click(function () {
+      transitionToLobby();
+      socket.emit('leaveGame');
+      restart();
+    });
+  });
   socket.on("sound", function (sound) {
     if (sound == "NEWGAME") {
       notificationSound.play();

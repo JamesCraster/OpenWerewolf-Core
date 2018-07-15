@@ -72,7 +72,7 @@ export class Server {
         if (player instanceof Player) {
             if (player.registered && player.inGame) {
                 if (player.game >= 0 && player.game < this._games.length) {
-                    if (this._games[player.game].inPlay == false) {
+                    if (this._games[player.game].inPlay == false || this._games[player.game].inEndChat) {
                         this._games[player.game].kick(player);
                         player.resetAfterGame();
                     }

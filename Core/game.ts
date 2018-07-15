@@ -37,6 +37,7 @@ export abstract class Game {
   private _gameType: string;
   private _resetStartTime: boolean = false;
   private _index: number = -1;
+  private _inEndChat: boolean = false;
   public constructor(server: Server, minPlayerCount: number, maxPlayerCount: number, gameType: string) {
     if (DEBUGMODE) {
       this._startWait = 10000;
@@ -47,6 +48,9 @@ export abstract class Game {
     this._gameType = gameType;
     setInterval(this.pregameLobbyUpdate.bind(this), 500);
     setInterval(this.update.bind(this), 500);
+  }
+  public get inEndChat() {
+    return this._inEndChat;
   }
   public set index(index: number) {
     this._index = index;
@@ -222,7 +226,11 @@ export abstract class Game {
         this._messageRooms[i].removePlayer(this._players[j]);
       }
     }
+    this._inEndChat = true;
     this.endChat.unmuteAll();
+    for (let i = 0; i < this._players.length; i++) {
+      this._players[i].emit('endChat');
+    }
     this.setAllTime(this.endTime, 10000);
     setTimeout(() => {
       this.setAllTitle("OpenWerewolf");
@@ -239,6 +247,7 @@ export abstract class Game {
       this._registeredPlayerCount = 0;
       this.colorPool = PlayerColorArray.slice();
       this._server.markGameStatusInLobby(this._index, "[OPEN]");
+      this._inEndChat = false;
     }, this.endTime);
   }
   protected addMessageRoom(room: MessageRoom) {
