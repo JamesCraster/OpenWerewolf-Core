@@ -1,5 +1,5 @@
 /*
-  Copyright 2017 James V. Craster
+  Copyright 2017-2018 James V. Craster
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -155,7 +155,7 @@ export class Server {
         let newPlayer = new Player(socket, session);
         if (!this._debugMode) {
             for (let i = 0; i < this._players.length; i++) {
-                if (this._players[i].inGame && this._players[i].session == session) {
+                if (this._players[i].registered && this._players[i].session == session) {
                     socket.emit("message", "You're already playing a game in a different tab, so you cannot join this one.", undefined, Colors.red);
                     newPlayer.banFromRegistering();
                 }
@@ -173,6 +173,7 @@ export class Server {
     private register(player: Player, msg: string) {
         if (!this._debugMode) {
             if (player.cannotRegister) {
+                player.registrationError("You're already playing in a different tab, so you can't join again.");
                 return;
             }
             for (let i = 0; i < this._players.length; i++) {

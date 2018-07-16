@@ -1,5 +1,5 @@
 /*
-  Copyright 2017 James V. Craster
+  Copyright 2017-2018 James V. Craster
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -123,7 +123,7 @@ function restart() {
   $('#roleNames').append('<li>Time: 00:00</li>');
   $('#roleNames').append('<li>Roles:</li>');
   $('#chatbox').empty();
-  $('#chatbox').append('<li>OpenWerewolf (C) 2017 James Craster</li>');
+  $('#chatbox').append('<li>OpenWerewolf (C) 2017-2018 James Craster</li>');
   $('#chatbox').append('<li><a href="https://github.com/JamesCraster/OpenWerewolf" target="_blank"> Github</a>' +
     '<a class="menulink" href="https://discord.gg/AYmr9vc" target="_blank">Discord</a>');
   $('#chatbox').append('<li>Welcome to OpenWerewolf. <b> Please type in a nickname you\'d like to use.</b></li>');
@@ -137,7 +137,7 @@ function restart() {
   });
 }
 $(function () {
-
+  $('#registerBox').focus();
   $('#leaveGame').css('background-color', "#3f0082");
   $('#leaveGame').click(function () {
     if (!inGame) {
@@ -207,7 +207,7 @@ $(function () {
     }
   });
   socket.on("registrationError", function (error) {
-    $('#errors').append('<p style="color:red;font-size:18px;margin-top:15px;">Invalid username: ' + error);
+    $('<p style="color:red;font-size:18px;margin-top:15px;">Invalid: ' + error + '</p>').hide().appendTo('#errors').fadeIn(100);
   });
   $('document').resize(function () {
 
@@ -346,9 +346,11 @@ $(function () {
     }, 30);
   });
   $('#registerForm').submit(function () {
-    $('#errors').empty();
-    socket.emit("message", $("#registerBox").val());
-    $("#registerBox").val("");
+    if ($("#registerBox").val() != "") {
+      $('#errors').empty();
+      socket.emit("message", $("#registerBox").val());
+      $("#registerBox").val("");
+    }
   })
 });
 
