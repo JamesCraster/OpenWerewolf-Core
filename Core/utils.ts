@@ -151,5 +151,5 @@ export interface NameColorPair {
     color: string
 }
 
-export const PlayerColorArray: Array<string> = [Colors.magenta, Colors.lightBlue, Colors.brightYellow, Colors.orange, Colors.usernameRed, Colors.usernameGreen,
+export const PlayerColorArray: Array<string> = [Colors.magenta, Colors.lightBlue, Colors.brightYellow, Colors.orange, Colors.darkGreen, Colors.usernameGreen,
 Colors.darkBlue, Colors.pink, Colors.brown];

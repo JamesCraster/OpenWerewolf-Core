@@ -300,9 +300,13 @@ export class Server {
                 if (player.registered && this._registeredPlayerCount > 0) {
                     this._registeredPlayerCount--;
                     if (player.inGame) {
-                        this._games[player.game].lineThroughPlayer(player.username);
+                        this._games[player.game].lineThroughPlayer(player.username, "grey");
                         if (!this._games[player.game].inPlay) {
                             this._games[player.game].kick(player);
+                            console.log("active")
+                        } else {
+                            this._games[player.game].broadcast(player.username + " has disconnected.");
+                            this._games[player.game].disconnect(player);
                         }
                         player.disconnect();
                     }

@@ -100,10 +100,16 @@ function removeMessage(msg, target) {
   }).remove();
 }
 
-function lineThroughPlayer(msg) {
+function markAsDead(msg) {
+  //$("#playerNames li").filter(function () {
+  //return $(this).text() === msg;
+  //}).text(msg + " (DEAD)");
+}
+
+function lineThroughPlayer(msg, color) {
   $("#playerNames li").filter(function () {
     return $(this).text() === msg;
-  }).css("color", "grey");
+  }).css("color", color);
   $("#playerNames li").filter(function () {
     return $(this).text() === msg;
   }).css("text-decoration", "line-through");
@@ -220,12 +226,19 @@ $(function () {
   })
   socket.on("removeRight", function (msg) {
     removeMessage(msg, "#playerNames");
+    removeMessage(" " + msg, '#playerNames');
+    console.log("active: " + msg);
   })
   socket.on("removeLeft", function (msg) {
     removeMessage(msg, "#roleNames");
   })
-  socket.on("lineThroughPlayer", function (msg) {
-    lineThroughPlayer(msg);
+  socket.on("lineThroughPlayer", function (msg, color) {
+    lineThroughPlayer(msg, color);
+    lineThroughPlayer(" " + msg, color);
+  });
+  socket.on("markAsDead", function (msg) {
+    markAsDead(msg);
+    markAsDead(" " + msg);
   });
   socket.on("reconnect", function () {
     console.log("disconnected and then reconnected");

@@ -46,11 +46,13 @@ if (myArgs[0] == "debug") {
   console.log("debug mode active");
 }
 
+
 server.addGame(new OneDay(server));
 server.addGame(new OneDay(server));
 server.addGame(new OneDay(server));
-server.addGame(new OneDay(server));
-server.addGame(new OneDay(server));
+server.addGame(new Classic(server));
+server.addGame(new Classic(server));
+server.addGame(new Classic(server));
 
 //create a session cookie
 var session = expressSession({

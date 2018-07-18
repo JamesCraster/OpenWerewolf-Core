@@ -167,10 +167,12 @@ export class Player {
     public removeLeft(msg: string) {
         this._socket.emit("removeLeft", msg);
     }
-    public lineThroughPlayer(msg: string) {
-        this._socket.emit("lineThroughPlayer", msg);
+    public lineThroughPlayer(msg: string, color: string) {
+        this._socket.emit("lineThroughPlayer", msg, color);
     }
-
+    public markAsDead(msg: string) {
+        this._socket.emit("markAsDead", msg);
+    }
     /**
      * Removes another player's username from the lobby
      * E.g the other player has left.
