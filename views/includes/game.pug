@@ -9,9 +9,23 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-div(style="margin-top:30px")
-    p(id="mainGameName" style="display:inline") Loading...
-    button(id="leaveGame") Leave Game
+
+div(class="ui inverted menu")
+    div(class="header item") OpenWerewolf
+    div(class="header item") 
+        p(id="mainGameName") Loading...
+    a(class="item" href="https://www.github.com/JamesCraster/OpenWerewolf" target="_blank") Github
+    a(class="item" href="https://discord.gg/AYmr9vc" target="_blank") Discord
+    div(class="ui inverted right menu")
+        div(class="item")
+            button(id="leaveGame" class="ui inverted purple button") Leave Game
+        div(class="item")
+            button(class="ui inverted blue button") Login
+        div(class="item")    
+            button(class="ui inverted blue button") Register
+
+//div(style="margin-top:30px")
+    //p(id="mainGameName" style="display:inline") Loading...
 
 div(id="leftBox" class="sideBox")
     div(id="innerLeftBox" class="innerSideBox")
@@ -27,9 +41,8 @@ div(id="outer")
                 a(href="https://github.com/JamesCraster/OpenWerewolf" target="_blank") Github
                 a(class="menulink" href="https://discord.gg/AYmr9vc" target="_blank") Discord
             li Welcome to OpenWerewolf. 
-                b Please type in a nickname you'd like to use.
             // Form for entering messages
-    form
+    form(id="msgForm")
         input(id="msg" autocomplete="off" placeholder="Type Here" maxlength="150" autofocus)
         input(id="submit" type="submit" value="Submit")
 

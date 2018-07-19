@@ -17,7 +17,7 @@ $central-innerbox-width: 90%;
 $central-innerbox-height: 70%;
 $msg-height: 40px;
 $standard-font-size: 18px;
-$small-font-size: 0.8em;
+$small-font-size: 0.9em;
 $inner-div-margin-bottom: 105px;
 @mixin standard-flexbox($flex-direction) {
   display: flex;
@@ -33,6 +33,7 @@ $inner-div-margin-bottom: 105px;
   overflow: hidden;
   color: #cecece;
   font-family: "IBM Plex Sans", sans-serif; //IBM Plex Sans from Google Fonts
+  line-height: normal;
 }
 
 html,
@@ -43,6 +44,44 @@ body {
 
 #header {
   height: 100%;
+}
+
+#discordLogo {
+  display: inline;
+  padding-left: 5px;
+  padding-top: 5px;
+  height: 64px;
+}
+
+#errors {
+  height: 50px
+}
+
+#landingPageCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+#registerForm {
+  margin-top: 1%;
+}
+
+#copyrightNotice {
+  min-width: 500px;
+  font-size: 0.9em;
+  color: #a5a5a5;
+  position: fixed;
+  bottom: 8px;
+  left: 10px;
+}
+
+#registrationPageTitle {
+  font-size: 5em;
+  margin-top: 11%;
+  margin-bottom: 20px;
 }
 
 #inner {
@@ -94,7 +133,7 @@ body {
   list-style: none;
 }
 
-form {
+#msgForm {
   width: $central-innerbox-width;
   display: inline-block;
 }
@@ -107,10 +146,10 @@ form {
 
 #msg {
   font-size: $small-font-size;
-  width: calc(100% - 95px);
+  width: calc(100% - 81px);
   outline: none;
   background-color: #23272a;
-  height: $msg-height;
+  height: $msg-height + 2;
   padding: 0px 5px;
   float: left;
   border: {
@@ -138,8 +177,8 @@ form {
   }
 }
 
-#leaveGame {
-  font-size: 17px;
+/*#leaveGame {
+  font-size: 16px;
   width: 12%;
   min-width: 112px;
   height: 42px;
@@ -158,7 +197,7 @@ form {
   }
   float: right;
   margin-right:8%;
-}
+}*/
 
 li {
   font-size: $standard-font-size;
@@ -200,7 +239,7 @@ a {
   margin-right: auto;
 }
 
-.item {
+.lobbyItem {
   font-size: 1.2em;
   margin-top: 10px;
   margin-left: 10px;
@@ -210,7 +249,7 @@ a {
   border-top: 2px solid black;
   border-right: 2px solid black;
   border-left: 2px solid black;
-  height: 80px;
+  height: 95px;
   min-width: 150px;
   padding-left: 5px;
   padding-top: 5px;
@@ -235,7 +274,7 @@ a {
 }
 
 #mainTitle {
-  font-size: 2em;
+  font-size: 2.24em;
   margin-bottom: 2%
 }
 
@@ -264,9 +303,9 @@ a {
 }
 
 #mainGameName {
-  margin-top: 30px;
-  margin-left: 8%;
-  font-size: 1.6em;
+  margin-top: 0;
+  margin-left: 0;
+  font-size: 1rem;
 }
 
 .menulink {

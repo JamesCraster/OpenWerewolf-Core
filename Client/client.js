@@ -132,8 +132,8 @@ function restart() {
   $('#chatbox').append('<li>OpenWerewolf (C) 2017-2018 James Craster</li>');
   $('#chatbox').append('<li><a href="https://github.com/JamesCraster/OpenWerewolf" target="_blank"> Github</a>' +
     '<a class="menulink" href="https://discord.gg/AYmr9vc" target="_blank">Discord</a>');
-  $('#chatbox').append('<li>Welcome to OpenWerewolf. <b> Please type in a nickname you\'d like to use.</b></li>');
-  $('#leaveGame').css('background-color', "#3f0082");
+  $('#chatbox').append('<li>Welcome to OpenWerewolf.</li>');
+  //$('#leaveGame').css('background-color', "#3f0082");
   $('#leaveGame').click(function () {
     if (!inGame) {
       transitionFromGameToLobby();
@@ -144,7 +144,7 @@ function restart() {
 }
 $(function () {
   $('#registerBox').focus();
-  $('#leaveGame').css('background-color', "#3f0082");
+  //$('#leaveGame').css('background-color', "#3f0082");
   $('#leaveGame').click(function () {
     if (!inGame) {
       transitionFromGameToLobby();
@@ -172,7 +172,7 @@ $(function () {
   socket.on("registered", function () {
     transitionFromLandingToLobby();
     registered = true;
-    $('#leaveGame').css('background-color', "#3f0082");
+    //$('#leaveGame').css('background-color', "#3f0082");
     $('#leaveGame').click(function () {
       if (!inGame) {
         transitionFromGameToLobby();
@@ -191,12 +191,12 @@ $(function () {
     notificationSound.play();
   });
   socket.on("newGame", function () {
-    $('#leaveGame').css('background-color', "#4c4c4c");
+    //$('#leaveGame').css('background-color', "#4c4c4c");
     inGame = true;
     $('#leaveGame').off('click');
   })
   socket.on("endChat", function () {
-    $('#leaveGame').css('background-color', "#3f0082");
+    //$('#leaveGame').css('background-color', "#3f0082");
     $('#leaveGame').click(function () {
       transitionFromGameToLobby();
       socket.emit('leaveGame');
@@ -250,7 +250,7 @@ $(function () {
     globalTime = time;
     globalWarn = warn;
   });
-  $('.item').click(function () {
+  $('.lobbyItem').click(function () {
     gameClicked = true;
     if (!waitingForGame) {
       transitionFromLobbyToGame($(this).attr('name'));
@@ -262,7 +262,7 @@ $(function () {
       if (!waitingForGame) {
         $('#playerNames').empty();
         $('#playerNames').append("<li>Players:</li>")
-        var usernameList = $(".item[number=" + $(this).attr('number') + "] .username");
+        var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
         for (i = 0; i < usernameList.length; i++) {
           appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
         }
@@ -273,7 +273,7 @@ $(function () {
       if (!waitingForGame) {
         $('#playerNames').empty();
         $('#playerNames').append("<li>Players:</li>")
-        var usernameList = $(".item[number=" + $(this).attr('number') + "] .username");
+        var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
         for (i = 0; i < usernameList.length; i++) {
           appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
         }

@@ -70,7 +70,10 @@ io.use(function (socket: any, next: any) {
 app.use(session);
 
 //serve static content
-app.use(express.static("Client"));
+app.use("/", express.static(__dirname + "/Client"));
+app.use("/semantic/dist/semantic.min.js", express.static(__dirname + "/semantic/dist/semantic.min.js"));
+app.use("/semantic/dist/semantic.min.css", express.static(__dirname + "/semantic/dist/semantic.min.css"));
+app.use("/semantic/dist/themes/default/assets/fonts/icons.woff", express.static(__dirname + "/semantic/dist/themes/default/assets/fonts/icons.woff"));
 app.set('view engine', 'pug');
 app.get("/", function (req: any, res: any) {
   let gameNames = [];
@@ -86,6 +89,7 @@ app.get("/", function (req: any, res: any) {
     gameTypes: server.gameTypes
   });
 });
+app.get("/semantic/min.js")
 
 //handle requests
 io.on("connection", function (socket: Socket) {
