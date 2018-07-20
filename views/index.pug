@@ -34,6 +34,8 @@ html(lang="en")
     body
         include includes/register.pug
         include includes/login.pug
+        include includes/leaveGameModal.pug
+        include includes/newGameModal.pug
         div(id="landingPage")
             div(class="ui inverted menu")
                 div(class="header item") OpenWerewolf
@@ -41,9 +43,9 @@ html(lang="en")
                 a(class="item" href="https://discord.gg/AYmr9vc" target="_blank") Discord
                 div(class="ui inverted right menu")
                     div(class="item")
-                        button(id="loginButton" class="ui inverted blue button") Login
+                        button(class="ui inverted blue button loginButton") Login
                     div(class="item")    
-                        button(id="newAccountButton" class="ui inverted blue button") Register
+                        button(class="ui inverted blue button newAccountButton") Register
 
             div(id="landingPageCenter")
                 p(id="registrationPageTitle") OpenWerewolf
@@ -52,16 +54,22 @@ html(lang="en")
                     div(class="ui action input")
                         input(type="text" id="registerBox" autocomplete="off" maxlength="10"  placeholder="Enter a nickname..." autofocus)
                         button(id="registerButton" class="ui inverted button") Submit
+            
             p(id="copyrightNotice") OpenWerewolf (C) 2017-2018 James Craster. No warranty. License: 
                 a(style="color:#237bd2" href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank") AGPLv3
+
+        
         include includes/lobby.pug
-        div(id="topLevel")
+        div(id="topLevel" style="overflow:hidden;")
             include includes/game.pug
+        
+        
     
     script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js")
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
     script(src="semantic/dist/semantic.min.js")
     script(src="client.js")
     script
-        |$('#newAccountButton').click(function(){$("#registerModal").modal('show');});        
-        |$('#loginButton').click(function(){$('#loginModal').modal("show");});
+        |$('.newAccountButton').click(function(){$("#registerModal").modal('show');});        
+        |$('.loginButton').click(function(){$('#loginModal').modal("show");});
+        |$('#newGameButton').click(function(){$('#newGameModal').modal("show");});

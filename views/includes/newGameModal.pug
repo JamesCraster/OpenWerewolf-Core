@@ -1,0 +1,26 @@
+div(id="newGameModal" class="ui modal column segment transition")
+    div(class="header") New Game
+    form(class="ui form" style="text-align:center")
+        div(class="field")
+            div(class="ui input")
+                input(type="text" placeholder="Game name")
+        div(class="field")
+            div(class="ui toggle checkbox")
+                input(type="checkbox" name="public")
+                label Ranked (signed-in players only)
+        div(class="field")
+            div(class="ui form")
+                div(class="inline fields" style="text-align:right;")
+                    label Game mode:
+                    div(class="field")
+                        div(class="ui radio checkbox")
+                            input(type="radio" name="frequency" checked="checked")
+                            label Classic
+                    div(class="field")
+                        div(class="ui radio checkbox")
+                            input(type="radio" name="frequency")
+                            label OneDay
+    br
+    br
+    button(class="ui blue button") Create Game 
+        

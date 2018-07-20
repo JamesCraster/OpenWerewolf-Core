@@ -9,20 +9,42 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-div(id="lobbyContainer" style="display:none; width:100%; height:100%;")
-    div(class="ui inverted menu")
-        div(class="header item") OpenWerewolf
-        a(class="item" href="https://www.github.com/JamesCraster/OpenWerewolf" target="_blank") Github
-        a(class="item" href="https://discord.gg/AYmr9vc" target="_blank") Discord
-        div(class="ui inverted right menu")
+div(id="lobbyContainer" style="display:none; width:100%; height:100%; overflow:hidden;")
+    div(class="ui inverted menu" style="margin-bottom:0px;")
+        div(class="ui inverted menu" style="margin-right:auto")
+            div(class="header item") OpenWerewolf
+            a(class="item" href="https://discord.gg/AYmr9vc" target="_blank") Discord
+
+        div(class="ui inverted menu" style="margin:auto")
+            a(class="item") All
+            a(class="item") Beginner
+            a(class="item") Ranked
+            div(class="ui inverted compact menu")
+                    div(class="ui simple dropdown item") Mode
+                        i(class="dropdown icon")
+                        div(class="ui inverted menu")
+                            div(class="item") OneDay
+                            div(class="item") Classic    
+
+        div(class="inverted right menu")
             div(class="item")
-                button(class="ui inverted blue button") Login
+                button(id="loginButton" class="ui inverted blue button loginButton") Login
             div(class="item")    
-                button(class="ui inverted blue button") Register
+                button(class="ui inverted blue button newAccountButton") Register
     div(id="lobby")
-        div(id="container" style="margin-bottom:60px")
+        div(id="container" style="margin-top:40px;")
+            div(style="text-align:center;")
+                button(id="newGameButton" class="blue ui button" type="submit" style="width:40%") New Game
             - var n = 0;
             - while(n < numberOfGames){
                 +lobbyEntry(n, gameNames[n], players[n], gameInPlay[n], gameTypes[n])
                 - n += 1;
             - }
+            br
+            br
+            br
+            p(style="visibility:hidden") End of lobby marker
+        div(id="lobbyRightBar" style="width:35%; height:100%")
+            div(id="lobbyTitleContainer" style="background-color:#303030; border-top:2px solid black; border-bottom:2px solid black")
+                h2(class="ui header" style="color:#cecece; padding-left:5px; padding-top:5px;") Lobby
+            ul(id="lobbyList")

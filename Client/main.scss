@@ -30,7 +30,6 @@ $inner-div-margin-bottom: 105px;
 * {
   margin: 0;
   padding: 0px 0px;
-  overflow: hidden;
   color: #cecece;
   font-family: "IBM Plex Sans", sans-serif; //IBM Plex Sans from Google Fonts
   line-height: normal;
@@ -115,6 +114,7 @@ body {
 .innerSideBox {
   border: $standard-border;
   height: $central-innerbox-height;
+  border-radius: 3px;
   width: 60%;
   margin-bottom: $msg-height + 2 + $inner-div-margin-bottom;
   box-sizing: border-box;
@@ -216,6 +216,10 @@ a {
   color: #268ef5;
 }
 
+.ui.inverted.menu {
+  background-color: #0e0e0e
+}
+
 #lobby {
   flex-direction: column;
   height: 100%;
@@ -228,22 +232,28 @@ a {
 
 #container {
   flex-direction: column;
-  margin: 0px -10px;
+  margin: 0px 0px;
   overflow-y: auto;
-  overflow-x: hidden;
-  border: 3px solid black;
+  overflow-x: hidden; //border: 3px solid black;
   display: block;
-  width: 75%;
-  height: 75%;
-  margin-left: auto;
+  width: 65%;
+  height: 100%;
+  margin-left: 10px;
   margin-right: auto;
+  margin-bottom: 0px;
+}
+
+#lobbyRightBar {
+  width: 35%;
+  border-left: $standard-border;
+  border-right: $standard-border;
 }
 
 .lobbyItem {
   font-size: 1.2em;
-  margin-top: 10px;
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: 10px;
   border-bottom: 2px solid black;
   border-top: 2px solid black;
@@ -251,9 +261,11 @@ a {
   border-left: 2px solid black;
   height: 95px;
   min-width: 150px;
-  padding-left: 5px;
-  padding-top: 5px;
+  padding-left: 0px;
+  padding-top: 0px;
   background-color: #303030;
+  width: 95%;
+  border-radius: 3px;
 }
 
 #menubar {
@@ -334,7 +346,7 @@ a {
     @include standard-flexbox(column);
   }
   #lobby {
-    @include standard-flexbox(column);
+    @include standard-flexbox(row);
   }
   #topLevel {
     @include standard-flexbox(row);
@@ -346,6 +358,6 @@ a {
     @include standard-flexbox(column);
   }
   #lobby {
-    @include standard-flexbox(column);
+    @include standard-flexbox(row);
   }
 }

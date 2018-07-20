@@ -129,11 +129,6 @@ function restart() {
   $('#roleNames').append('<li>Time: 00:00</li>');
   $('#roleNames').append('<li>Roles:</li>');
   $('#chatbox').empty();
-  $('#chatbox').append('<li>OpenWerewolf (C) 2017-2018 James Craster</li>');
-  $('#chatbox').append('<li><a href="https://github.com/JamesCraster/OpenWerewolf" target="_blank"> Github</a>' +
-    '<a class="menulink" href="https://discord.gg/AYmr9vc" target="_blank">Discord</a>');
-  $('#chatbox').append('<li>Welcome to OpenWerewolf.</li>');
-  //$('#leaveGame').css('background-color', "#3f0082");
   $('#leaveGame').click(function () {
     if (!inGame) {
       transitionFromGameToLobby();
@@ -144,7 +139,6 @@ function restart() {
 }
 $(function () {
   $('#registerBox').focus();
-  //$('#leaveGame').css('background-color', "#3f0082");
   $('#leaveGame').click(function () {
     if (!inGame) {
       transitionFromGameToLobby();
@@ -193,10 +187,14 @@ $(function () {
   socket.on("newGame", function () {
     //$('#leaveGame').css('background-color', "#4c4c4c");
     inGame = true;
-    $('#leaveGame').off('click');
+    $('#leaveGame').click(function () {
+      $('#leaveGameModal').modal('show');
+    });;
   })
   socket.on("endChat", function () {
+    console.log('active');
     //$('#leaveGame').css('background-color', "#3f0082");
+    $('#leaveGame').off('click');
     $('#leaveGame').click(function () {
       transitionFromGameToLobby();
       socket.emit('leaveGame');
@@ -283,13 +281,14 @@ $(function () {
   });
 
   socket.on("updateGame", function (name, playerNames, playerColors, number, inPlay) {
+    number += 1;
     if (inPlay) {
       $('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
-      $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("[IN PLAY]");
+      $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("IN PLAY");
       $('#container div:nth-child(' + number.toString() + ')').attr('inPlay', "true");
     } else {
       $('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
-      $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("[OPEN]");
+      $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("OPEN");
       $('#container div:nth-child(' + number.toString() + ')').attr('inPlay', "false");
     }
     var div = $('#container div:nth-child(' + number.toString() + ') p:last span:first');
@@ -305,7 +304,7 @@ $(function () {
   });
   //removes player from lobby list
   socket.on("removePlayerFromLobbyList", function (name, game) {
-    var spanList = $('#container div:nth-child(' + (game + 1).toString() + ') p:last span:first span');
+    var spanList = $('#container div:nth-child(' + (game + 2).toString() + ') p:last span:first span');
     for (i = 0; i < spanList.length; i++) {
       if ($(spanList[i]).text() == name || $(spanList[i]).text() == " " + name) {
         //remove the separating comma if it exists 
@@ -321,8 +320,8 @@ $(function () {
     }
   });
   socket.on("addPlayerToLobbyList", function (name, color, game) {
-    var div = $('#container div:nth-child(' + (game + 1).toString() + ') p:last span:first');
-    var spanList = $('#container div:nth-child(' + (game + 1).toString() + ') p:last .username');
+    var div = $('#container div:nth-child(' + (game + 2).toString() + ') p:last span:first');
+    var spanList = $('#container div:nth-child(' + (game + 2).toString() + ') p:last .username');
     if (spanList.length == 0) {
       div.append('<span class="username" style="color:' + color + '">' + name);
     } else {

@@ -11,18 +11,19 @@
     limitations under the License.
      
 mixin lobbyEntry(gameNumber, name, players, inPlay, gameType)
-    div(class="lobbyItem" number=gameNumber name=name inPlay="false")
-        - if(inPlay){
-        p
-            span(class="gameName")= name
-            span(class="inPlay")= "[IN PLAY]"
-        - }else{
-        p 
-            span(class="gameName")= name
-            span(class="inPlay")= "[OPEN]"
-        - }
-        br
-        p Players:  
+    div(class="lobbyItem" number=gameNumber name=name inPlay="false" style="padding-bottom:5px;")
+        div(class="lobbyItemHeader" style="overflow:auto; background-color: #1b1c1f; padding-left:5px; padding-top:5px; border-bottom:2px solid black;")
+            - if(inPlay){
+            p
+                span(class="gameName")= name
+                span(class="inPlay")= "IN PLAY"
+            - }else{
+            p 
+                span(class="gameName")= name
+                span(class="inPlay")= "OPEN"
+            - }
+        br(style="line-height:2.4em;")
+        p(style="padding-left:5px;") Players:  
             span
                 - var n = 0;
                 - while(n < players.length){
