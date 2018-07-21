@@ -270,8 +270,13 @@ $(function () {
       dataType: 'json',
       contentType: 'application/json',
       success: function (data) {
-        console.log(data);
-        location.reload();
+        if (data.result == "success") {
+          location.reload();
+        } else {
+          console.log('fail received');
+          $('#loginModalAdditionalError').text(data.result);
+          $('#loginDimmer').dimmer('hide');
+        }
       },
       error: function (error) {
         console.log("There has been an error");
