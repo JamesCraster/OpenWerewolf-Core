@@ -1,14 +1,20 @@
 div(id="loginModal" class="ui modal column segment transition")
     div(class="header") Login
-    form(class="ui form" style="text-align:center")
+    form(id="loginForm" class="ui form" style="text-align:center")
+        div(id="loginDimmer" class="ui dimmer inverted")
+            div(class="ui loader")
         div(class="field")
             div(class="ui left icon input")
                 i(class="user icon")
-                input(type="text" placeholder="Username")
+                input(name="username" id="loginUsername" type="text" placeholder="Username" maxlength="20")
         div(class="field")
             div(class="ui left icon input")
                 i(class="lock icon")
-                input(type="password" placeholder="Password")
+                input(name="password" id="loginPassword" type="password" placeholder="Password" maxlength="200")
+        br
+        div(style="text-align:left")
+            a Forgotten Password?
+        div(class="ui error message")
         br
         br
         button(class="blue ui fluid button" type="submit") Submit

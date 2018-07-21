@@ -35,6 +35,7 @@ var expressSession = require("express-session");
 var RedisStore = require("connect-redis")(expressSession);
 var redis = require('redis-server');
 const redisServer = new redis(6379);
+var grawlix = require('grawlix');
 var sql = require('mysql');
 redisServer.open(((err: string) => { }));
 
@@ -45,7 +46,6 @@ if (myArgs[0] == "debug") {
   server.setDebug();
   console.log("debug mode active");
 }
-
 
 server.addGame(new OneDay(server));
 server.addGame(new OneDay(server));
@@ -68,7 +68,7 @@ io.use(function (socket: any, next: any) {
 });
 
 app.use(session);
-
+app.use(express.json());
 //serve static content
 app.use("/", express.static(__dirname + "/Client"));
 app.use("/semantic/dist/semantic.min.js", express.static(__dirname + "/semantic/dist/semantic.min.js"));
@@ -89,8 +89,55 @@ app.get("/", function (req: any, res: any) {
     gameTypes: server.gameTypes
   });
 });
-app.get("/semantic/min.js")
+app.post("/register", function (req: any, res: any) {
+  console.log(req.body);
+  let status = "success";
+  //run validation
+  var letters = /^[A-Za-z]+$/;
+  if (typeof req.body.username == 'string' || req.body.username instanceof String) {
+    if (req.body.username.length > 0 && req.body.username.length <= 10) {
+      if (letters.test(req.body.username)) {
+        if (!grawlix.isObscene(req.body.username)) {
 
+        } else {
+          status = 'Usernames cannot contain profanity. Please change your username';
+        }
+      } else {
+        status = 'Usernames can only contain letters (no numbers or punctuation)';
+      }
+    } else {
+      status = 'Your username must be between 1 and 10 characters';
+    }
+  }
+  if (typeof req.body.email == 'string' || req.body.email instanceof String) {
+    if (req.body.email.length > 0 && req.body.email.length <= 256) {
+
+    } else {
+      status = 'Your email must be between 1 and 256 characters';
+    }
+  }
+  if (typeof req.body.password == 'string' || req.body.email instanceof String) {
+    if (req.body.password.length > 0 && req.body.password.length <= 256) {
+      if (typeof req.body.repeatPassword == 'string' || req.body.repeatPassword instanceof String) {
+        if (req.body.password === req.body.repeatPassword) {
+
+        } else {
+          status = 'Your password and repeated password don\'t match';
+        }
+      }
+    } else {
+      status = 'Your password must be between 1 and 256 characters';
+    }
+  }
+  res.send('{ "result":' + JSON.stringify(status) + '}');
+});
+app.post("/login", function (req: any, res: any) {
+  console.log(req.body);
+  res.send('{"result":"success"}');
+});
+app.get("*", function (req: any, res: any) {
+  res.render("404");
+});
 //handle requests
 io.on("connection", function (socket: Socket) {
   //set the session unless it is already set

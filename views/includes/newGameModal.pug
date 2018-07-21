@@ -1,12 +1,12 @@
 div(id="newGameModal" class="ui modal column segment transition")
     div(class="header") New Game
-    form(class="ui form" style="text-align:center")
+    form(id="newGameForm" class="ui form" style="text-align:center")
         div(class="field")
             div(class="ui input")
-                input(type="text" placeholder="Game name")
+                input(name="gameName" type="text" placeholder="Game name" maxlength="20")
         div(class="field")
             div(class="ui toggle checkbox")
-                input(type="checkbox" name="public")
+                input(name="gameType" type="checkbox")
                 label Ranked (signed-in players only)
         div(class="field")
             div(class="ui form")
@@ -20,7 +20,10 @@ div(id="newGameModal" class="ui modal column segment transition")
                         div(class="ui radio checkbox")
                             input(type="radio" name="frequency")
                             label OneDay
-    br
-    br
-    button(class="ui blue button") Create Game 
+        
+        div(class="ui error message")
+        br
+        br
+        button(newGameModalCreateButton class="ui blue button") Create Game 
+    
         

@@ -31,18 +31,18 @@ div(class="ui inverted menu")
 div(id="leftBox" class="sideBox")
     div(id="innerLeftBox" class="innerSideBox")
         ul(id="roleNames")
-            li Time: 00:00
-            li Roles:
+            li(class="gameli") Time: 00:00
+            li(class="gameli") Roles:
    
 div(id="outer")
     div(id="inner")
         ul(id="chatbox")
             // Form for entering messages
-    form(id="msgForm")
+    form(id="msgForm" class="messageForm")
         input(id="msg" autocomplete="off" placeholder="Type Here" maxlength="150" autofocus)
         input(id="submit" type="submit" value="Submit")
 
 div(id="rightBox" class="sideBox")
     div(id="innerRightBox" class="innerSideBox")
         ul(id="playerNames")
-            li Players:
+            li(class="gameli") Players:

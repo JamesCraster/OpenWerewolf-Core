@@ -69,13 +69,13 @@ function appendMessage(msg, target, textColor, backgroundColor, usernameColor) {
   //test if client scrolled down
   var scrollDown = isClientScrolledDown();
   if (textColor && backgroundColor) {
-    $(target).append($("<li style='color:" + textColor + ";background-color:" + backgroundColor + "'>"));
+    $(target).append($("<li class='gameli' style='color:" + textColor + ";background-color:" + backgroundColor + "'>"));
   } else if (textColor) {
-    $(target).append($("<li style='color:" + textColor + "'>"));
+    $(target).append($("<li class='gameli' style='color:" + textColor + "'>"));
   } else if (backgroundColor) {
-    $(target).append($("<li style='background-color:" + backgroundColor + "'>"));
+    $(target).append($("<li class='gameli' style='background-color:" + backgroundColor + "'>"));
   } else {
-    $(target).append($("<li>"));
+    $(target).append($("<li class='gameli'>"));
   }
   if (usernameColor) {
     username = msg.split(":")[0];
@@ -124,10 +124,10 @@ function restart() {
   globalTime = 0;
   globalWarn = -1;
   $('#playerNames').empty();
-  $('#playerNames').append('<li>Players:</li>');
+  $('#playerNames').append('<li class="gameli">Players:</li>');
   $('#roleNames').empty();
-  $('#roleNames').append('<li>Time: 00:00</li>');
-  $('#roleNames').append('<li>Roles:</li>');
+  $('#roleNames').append('<li class="gameli">Time: 00:00</li>');
+  $('#roleNames').append('<li class="gameli">Roles:</li>');
   $('#chatbox').empty();
   $('#leaveGame').click(function () {
     if (!inGame) {
@@ -146,7 +146,141 @@ $(function () {
     }
   });
 
-  $("form").submit(function () {
+  $('#newGameForm').form({
+    fields: {
+      gameName: {
+        identifier: 'gameName',
+        rules: [{
+          type: 'empty',
+          prompt: 'Please enter a name for your game'
+        }]
+      }
+    }
+  });
+
+  $('#newGameForm').submit(() => {
+    return false;
+  })
+
+  $('#loginForm').form({
+    fields: {
+      username: {
+        identifier: 'username',
+        rules: [{
+          type: 'empty',
+          prompt: 'Please enter your username'
+        }]
+      },
+      password: {
+        identifier: 'password',
+        rules: [{
+          type: 'empty',
+          prompt: 'Please enter your password'
+        }]
+      }
+    }
+  })
+
+  //create a new form rule to recongnize when the repeated password doesn't match the password
+  $.fn.form.settings.rules.repeatMatchInitial = function () {
+    return $('#addNewUserRepeatPassword').val() == $('#addNewUserPassword').val();
+  };
+
+  $('#addNewUserForm').form({
+    fields: {
+      username: {
+        identifier: 'username',
+        rules: [{
+          type: 'empty',
+          prompt: 'Please enter your username'
+        }]
+      },
+      email: {
+        identifier: 'email',
+        rules: [{
+          type: 'email',
+          prompt: 'Your email is invalid'
+        }]
+      },
+      password: {
+        identifier: 'password',
+        rules: [{
+          type: 'empty',
+          prompt: 'Please enter your password'
+        }]
+      },
+      repeatPassword: {
+        identifier: 'repeatPassword',
+        rules: [{
+          type: 'repeatMatchInitial',
+          prompt: 'Your password and repeated password don\'t match'
+        }]
+      }
+    }
+  });
+
+  $('#addNewUserForm').submit(() => {
+    if (!$('#addNewUserForm').form('is valid')) {
+      return false;
+    }
+    console.log('submitted!');
+    $('#addNewUserDimmer').dimmer('show');
+    $('#addNewUserAdditionalError').text('');
+    $.ajax({
+      type: 'POST',
+      url: '/register',
+      data: JSON.stringify({
+        "username": $('#addNewUserUsername').val(),
+        "email": $('#addNewUserEmail').val(),
+        "password": $('#addNewUserPassword').val(),
+        "repeatPassword": $("#addNewUserRepeatPassword").val()
+      }),
+      dataType: 'json',
+      contentType: 'application/json',
+      success: function (data) {
+        console.log(data);
+        //if result is not success, the input was not valid
+        if (data.result == "success") {
+          location.reload();
+        } else {
+          $('#addNewUserDimmer').dimmer('hide');
+          $('#addNewUserUsername').val('');
+          $('#addNewUserAdditionalError').text(data.result);
+        }
+      },
+      error: function (error) {
+        console.log("There has been an error");
+        console.log(error);
+      }
+    });
+    return false;
+  });
+  $('#loginForm').submit(() => {
+    if (!$('#loginForm').form('is valid')) {
+      return false;
+    }
+    $('#loginDimmer').dimmer('show');
+    $.ajax({
+      type: 'POST',
+      url: '/login',
+      data: JSON.stringify({
+        "username": $('#loginUsername').val(),
+        "password": $('#loginPassword').val(),
+      }),
+      dataType: 'json',
+      contentType: 'application/json',
+      success: function (data) {
+        console.log(data);
+        location.reload();
+      },
+      error: function (error) {
+        console.log("There has been an error");
+        console.log(error);
+      }
+    });
+    return false;
+  });
+  $(".messageForm").submit(function () {
     //prevent submitting empty messages
     if ($("#msg").val() == "") {
       return false;
@@ -259,7 +393,7 @@ $(function () {
     if ($(this).attr('inPlay') == "false") {
       if (!waitingForGame) {
         $('#playerNames').empty();
-        $('#playerNames').append("<li>Players:</li>")
+        $('#playerNames').append("<li class='gameli'>Players:</li>")
         var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
         for (i = 0; i < usernameList.length; i++) {
           appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
@@ -270,7 +404,7 @@ $(function () {
     } else {
       if (!waitingForGame) {
         $('#playerNames').empty();
-        $('#playerNames').append("<li>Players:</li>")
+        $('#playerNames').append("<li class='gameli'>Players:</li>")
         var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
         for (i = 0; i < usernameList.length; i++) {
           appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
@@ -352,11 +486,7 @@ $(function () {
   $(window).resize(function () {
     $('#inner')[0].scrollTop = $('#inner')[0].scrollHeight;
   });
-  $('#msg').focusout(function () {
-    setTimeout(function () {
-      $('#msg').focus()
-    }, 30);
-  });
+
   $('#registerForm').submit(function () {
     if ($("#registerBox").val() != "") {
       $('#errors').empty();
@@ -364,6 +494,11 @@ $(function () {
       $("#registerBox").val("");
     }
   })
+
+  $('#viewLobby').click(() => {
+    transitionFromGameToLobby();
+  })
+
 });
 
 function transitionFromLandingToLobby() {

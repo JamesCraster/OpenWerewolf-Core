@@ -1,26 +1,31 @@
 div(id="registerModal" class="ui modal column segment transition")
     div(class="header") Register
-    form(class="ui form" style="text-align:center")
+    p(id="addNewUserAdditionalError" style="color:red")
+    form(id="addNewUserForm" action="" class="ui form" style="text-align:center")
+        div(id="addNewUserDimmer" class="ui dimmer inverted")
+            div(class="ui loader")
         div(class="field")
             div(class="ui left icon input")
                 i(class="user icon")
-                input(type="text" placeholder="Username")
+                input(id="addNewUserUsername" name="username" type="text" placeholder="Username" maxlength="10")
         div(class="field")
             div(class="ui left icon input")
                 i(class="mail icon")
-                input(type="email" placeholder="Email")
+                input(id="addNewUserEmail" name="email" type="text" placeholder="Email" maxlength="100")
         div(class="field")
             div(class="ui left icon input")
                 i(class="lock icon")
-                input(type="password" placeholder="Password")
+                input(id="addNewUserPassword" name="password" type="password" placeholder="Password" maxlength="100")
         div(class="field")
             div(class="ui left icon input")
                 i(class="lock icon")
-                input(type="password" placeholder="Repeat password")
+                input(name="repeatPassword" id="addNewUserRepeatPassword" type="password" placeholder="Repeat password" maxlength="100")
 
         div(class="ui checkbox")
             input(type="checkbox")
             label Sign up to the newsletter to get updates
+        
+        div(class="ui error message")
         br
         br
-        button(class="blue ui fluid button" type="submit") Submit
+        button(class="blue ui fluid button" type="submit" id="addNewUserButton") Submit

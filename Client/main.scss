@@ -30,7 +30,6 @@ $inner-div-margin-bottom: 105px;
 * {
   margin: 0;
   padding: 0px 0px;
-  color: #cecece;
   font-family: "IBM Plex Sans", sans-serif; //IBM Plex Sans from Google Fonts
   line-height: normal;
 }
@@ -81,6 +80,7 @@ body {
   font-size: 5em;
   margin-top: 11%;
   margin-bottom: 20px;
+  color: #cecece;
 }
 
 #inner {
@@ -145,6 +145,7 @@ body {
 }
 
 #msg {
+  color: #cecece;
   font-size: $small-font-size;
   width: calc(100% - 81px);
   outline: none;
@@ -169,6 +170,7 @@ body {
   border-radius: 0px;
   border: 0px;
   background-color: #0c0c0c;
+  color: #cecece;
   &:focus {
     outline: none;
   }
@@ -199,9 +201,10 @@ body {
   margin-right:8%;
 }*/
 
-li {
+.gameli {
   font-size: $standard-font-size;
   background: #23272a;
+  color: #cecece;
   padding: 5px 5px;
   word-wrap: break-word;
   &:nth-child(odd) {
@@ -231,6 +234,7 @@ a {
 }
 
 #container {
+  color: #cecece;
   flex-direction: column;
   margin: 0px 0px;
   overflow-y: auto;

@@ -54,9 +54,9 @@ while [ "$1" != "" ]; do
 
       cp Games/OneDay/oneDay.js release/Games/OneDay
       cp Games/OneDay/LICENSE release/Games/OneDay
-      cp Games/Classic/classic.js release/Games/Classic
+      cp Games/Classic/Classic.js release/Games/Classic
       cp Games/Classic/LICENSE relase/Games/Classic
-
+      cp -r semantic release/semantic
       ;;
 
     -d)
