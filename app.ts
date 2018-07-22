@@ -73,8 +73,7 @@ var session = expressSession({
   store: new RedisStore({ host: 'localhost', port: 6379 }),
   secret: 'sakhasdjhasdkjhadkjahsd',
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }
+  saveUninitialized: true
 });
 
 //use session cookie in sockets
@@ -82,7 +81,6 @@ io.use(function (socket: any, next: any) {
   session(socket.request, socket.request.res, next);
 });
 
-app.use(session);
 app.use(express.json());
 //serve static content
 app.use("/", express.static(__dirname + "/Client"));
@@ -90,18 +88,23 @@ app.use("/semantic/dist/semantic.min.js", express.static(__dirname + "/semantic/
 app.use("/semantic/dist/semantic.min.css", express.static(__dirname + "/semantic/dist/semantic.min.css"));
 app.use("/semantic/dist/themes/default/assets/fonts/icons.woff", express.static(__dirname + "/semantic/dist/themes/default/assets/fonts/icons.woff"));
 app.set('view engine', 'pug');
+app.use(session);
 app.get("/", function (req: any, res: any) {
   let gameNames = [];
   for (let i = 0; i < server.numberOfGames; i++) {
     gameNames.push("Game " + (i + 1).toString());
   }
+  console.log(req.session.loggedIn);
+  console.log(req.session.socketID);
   //add logic with pug to generate correct lobby
   res.render('index', {
     numberOfGames: server.numberOfGames,
     gameNames: gameNames,
     players: server.playerNameColorPairs,
     gameInPlay: server.inPlayArray,
-    gameTypes: server.gameTypes
+    gameTypes: server.gameTypes,
+    loggedIn: req.session.loggedIn,
+    username: req.session.username
   });
 });
 app.post("/register", function (req: any, res: any) {
@@ -173,6 +176,7 @@ app.post("/login", function (req: any, res: any) {
             status = "success";
             req.session.loggedIn = true;
             req.session.username = req.body.username;
+            req.session.save(() => { });
           } else {
             console.log('negative comparison');
             status = "Your username or password is incorrect.";
@@ -187,6 +191,11 @@ app.post("/login", function (req: any, res: any) {
   } else {
     res.send('{"result":' + JSON.stringify(status) + '}');
   }
+});
+app.post("/logout", function (req: any, res: any) {
+  req.session.loggedIn = false;
+  req.session.username = "";
+  res.send("{}");
 });
 app.get("*", function (req: any, res: any) {
   res.render("404");

@@ -285,6 +285,18 @@ $(function () {
     });
     return false;
   });
+  $('.logoutButton').click(() => {
+    $.ajax({
+      type: 'POST',
+      url: '/logout',
+      data: "{}",
+      dataType: 'json',
+      contentType: 'application/json',
+      success: function (data) {
+        location.reload();
+      }
+    });
+  });
   $(".messageForm").submit(function () {
     //prevent submitting empty messages
     if ($("#msg").val() == "") {
@@ -517,11 +529,12 @@ function transitionFromLobbyToGame(gameName) {
   $('#landingPage').fadeOut('fast', function () {
     if (isSafari) {
       //get rid of animations
-      $('#lobbyContainer').hide();
-      $('#topLevel').show();
+      $('#lobbyContainer').fadeOut();
+      $('#topLevel').fadeIn();
     } else {
-      $('#lobbyContainer').hide("slow");
-      $('#topLevel').show("slow");
+      $('#lobbyContainer').fadeOut(200, function () {
+        $('#topLevel').fadeIn(200);
+      });
     }
     if (gameName) {
       $('#mainGameName').text(gameName);
@@ -537,8 +550,9 @@ function transitionFromGameToLobby() {
       $('#topLevel').hide();
       $('#lobbyContainer').show();
     } else {
-      $('#topLevel').hide("slow");
-      $('#lobbyContainer').show("slow");
+      $('#topLevel').fadeOut(200, function () {
+        $('#lobbyContainer').fadeIn(200);
+      });
     }
     $('#lobbyContainer')[0].scrollTop = 0
   });

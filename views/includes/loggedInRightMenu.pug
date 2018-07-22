@@ -1,0 +1,10 @@
+- if(loggedIn){
+    div(class="header item")= "Hello, " + username  
+    div(class="item")
+        button(class="ui inverted blue button logoutButton") Logout
+-}else{
+    div(class="item")
+        button(class="ui inverted blue button loginButton") Login
+    div(class="item")    
+        button(class="ui inverted blue button newAccountButton") Register
+-}

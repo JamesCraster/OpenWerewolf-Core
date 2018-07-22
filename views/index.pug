@@ -16,6 +16,8 @@
 //gameNames : array of names of games.
 //gameInPlay : array of booleans, true if nth game in play, false otherwise
 //gameTypes : array of strings, each correspoding to a game title
+//loggedIn : boolean, true if the player is logged in, false otherwise
+//username: the username of the logged in player
 
 doctype html
 include includes/lobbyEntry.pug
@@ -42,11 +44,8 @@ html(lang="en")
                 a(class="item" href="https://www.github.com/JamesCraster/OpenWerewolf" target="_blank") Github
                 a(class="item" href="https://discord.gg/AYmr9vc" target="_blank") Discord
                 div(class="ui inverted right menu")
-                    div(class="item")
-                        button(class="ui inverted blue button loginButton") Login
-                    div(class="item")    
-                        button(class="ui inverted blue button newAccountButton") Register
-
+                    include includes/loggedInRightMenu.pug
+                    
             div(id="landingPageCenter")
                 p(id="registrationPageTitle") OpenWerewolf
                 div(id="errors")

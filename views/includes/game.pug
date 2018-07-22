@@ -10,7 +10,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-div(class="ui inverted menu")
+div(class="ui inverted menu" style = "background:#1b1c1d")
     div(class="header item") OpenWerewolf
     div(class="header item") 
         p(id="mainGameName") Loading...
@@ -20,10 +20,7 @@ div(class="ui inverted menu")
             button(id="viewLobby" class="ui inverted button") View lobby
         div(class="item")
             button(id="leaveGame" class="ui inverted purple button") Leave Game
-        div(class="item")
-            button(class="ui inverted blue button loginButton") Login
-        div(class="item")    
-            button(class="ui inverted blue button newAccountButton") Register
+        include loggedInRightMenu.pug
 
 //div(style="margin-top:30px")
     //p(id="mainGameName" style="display:inline") Loading...
