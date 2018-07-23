@@ -11,7 +11,7 @@
     limitations under the License.
      
 mixin lobbyEntry(gameNumber, name, players, inPlay, gameType)
-    div(class="lobbyItem" number=gameNumber name=name inPlay="false" style="padding-bottom:5px;position:relative;")
+    div(class="lobbyItem" number=gameNumber name=name inPlay="false" ranked="false" style="padding-bottom:5px;position:relative;")
         div(class="lobbyItemHeader" style="overflow:auto; background-color: #1b1c1d; padding-left:5px; padding-top:5px; border-bottom:2px solid #0d0d0e;")
             - if(inPlay){
             p

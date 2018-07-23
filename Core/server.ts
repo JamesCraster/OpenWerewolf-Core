@@ -30,6 +30,9 @@ export class Server {
         //join waiting players to games that need them
         setInterval(this.joinGame.bind(this), 50);
     }
+    get games() {
+        return this._games;
+    }
     public setDebug() {
         this._debugMode = true;
     }

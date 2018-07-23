@@ -61,12 +61,12 @@ if (myArgs[0] == "debug") {
   console.log("debug mode active");
 }
 
-server.addGame(new OneDay(server));
-server.addGame(new OneDay(server));
-server.addGame(new OneDay(server));
-server.addGame(new Classic(server));
-server.addGame(new Classic(server));
-server.addGame(new Classic(server));
+server.addGame(new OneDay(server, "Game 1"));
+server.addGame(new OneDay(server, "Game 2"));
+server.addGame(new OneDay(server, "Game 3"));
+server.addGame(new Classic(server, "Game 4"));
+server.addGame(new Classic(server, "Game 5"));
+server.addGame(new Classic(server, "Game 6"));
 
 //create a session cookie
 var session = expressSession({
@@ -89,10 +89,16 @@ app.use("/semantic/dist/semantic.min.css", express.static(__dirname + "/semantic
 app.use("/semantic/dist/themes/default/assets/fonts/icons.woff", express.static(__dirname + "/semantic/dist/themes/default/assets/fonts/icons.woff"));
 app.set('view engine', 'pug');
 app.use(session);
+app.get("/imprint", function (req: any, res: any) {
+  res.render('imprint');
+});
+app.get("/about", function (req: any, res: any) {
+  res.render('about');
+});
 app.get("/", function (req: any, res: any) {
   let gameNames = [];
-  for (let i = 0; i < server.numberOfGames; i++) {
-    gameNames.push("Game " + (i + 1).toString());
+  for (let i = 0; i < server.games.length; i++) {
+    gameNames.push(server.games[i].name);
   }
   //add logic with pug to generate correct lobby
   res.render('index', {
@@ -174,7 +180,7 @@ app.post("/login", function (req: any, res: any) {
   if (typeof req.body.username == 'string' && typeof req.body.password == 'string') {
     var sql = "SELECT encrypted_password FROM USERS WHERE username=" + mysql.escape(req.body.username);
     con.query(sql, function (err: any, result: any) {
-      if (result[0] != undefined) {
+      if (result != undefined) {
         bcrypt.compare(req.body.password, result[0].encrypted_password, function (err: any, comparisonResult: any) {
           if (comparisonResult == true) {
             status = "success";
@@ -247,6 +253,11 @@ io.on("connection", function (socket: Socket) {
         time = Date.now();
         server.receiveLobbyMessage(socket.id, msg);
       }
+    }
+  });
+  socket.on("newGame", function (name: string) {
+    if (typeof name == 'string') {
+      server.addGame(new OneDay(server, name));
     }
   });
 });

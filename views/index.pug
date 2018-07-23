@@ -25,6 +25,7 @@ html(lang="en")
     head
         meta(charset="UTF-8")
         meta(name="description" content="The online multiplayer werewolf game that's 100% open-source.")
+        link(rel="icon" href="icon.png")
         link(rel="stylesheet" type="text/css" href="main.css")
         link(rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css")
         link(rel="stylesheet" type="text/css" href="simplebar.min.css")
@@ -42,6 +43,7 @@ html(lang="en")
         div(id="landingPage")
             div(class="ui inverted menu")
                 div(class="header item") OpenWerewolf
+                a(class="item" href="/about" target="_blank") About
                 a(class="item" href="https://www.github.com/JamesCraster/OpenWerewolf" target="_blank") Github
                 a(class="item" href="https://discord.gg/AYmr9vc" target="_blank") Discord
                 div(class="ui inverted right menu")
@@ -55,9 +57,10 @@ html(lang="en")
                         input(type="text" id="registerBox" autocomplete="off" maxlength="10"  placeholder="Enter a nickname..." autofocus)
                         button(id="registerButton" class="ui inverted button") Submit
             
-            p(id="copyrightNotice") OpenWerewolf (C) 2017-2018 James Craster. No warranty. License: 
+            //p(id="copyrightNotice") OpenWerewolf (C) 2017-2018 James Craster. No warranty. License: 
                 a(style="color:#237bd2" href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank") AGPLv3
-
+            p(id="copyrightNotice")
+                a(href="/imprint") Copyright and attribution
         
         include includes/lobby.pug
         div(id="topLevel" style="overflow:hidden;")

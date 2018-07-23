@@ -148,8 +148,10 @@ $(function () {
     }
   });
   $('#lobbyChatForm').submit(() => {
+    console.log('active');
     socket.emit('lobbyMessage', $('#lobbyChatInput').val());
     $('#lobbyChatInput').val('');
+    return false;
   });
   $('#newGameForm').form({
     fields: {
@@ -164,6 +166,11 @@ $(function () {
   });
 
   $('#newGameForm').submit(() => {
+    if (!$('#newGameForm').form('is valid')) {
+      return false;
+    }
+    socket.emit("newGame", $("#newGameFormName").val());
+    $('#newGameModal').modal('hide');
     return false;
   })
 
@@ -340,8 +347,10 @@ $(function () {
   socket.on("notify", function () {
     notificationSound.play();
   });
+  socket.on("addNewGameToLobby", function (name, number, type) {
+
+  });
   socket.on("newGame", function () {
-    //$('#leaveGame').css('background-color', "#4c4c4c");
     inGame = true;
     $('#leaveGame').click(function () {
       $('#leaveGameModal').modal('show');
@@ -349,7 +358,6 @@ $(function () {
   })
   socket.on("endChat", function () {
     console.log('active');
-    //$('#leaveGame').css('background-color', "#3f0082");
     $('#leaveGame').off('click');
     $('#leaveGame').click(function () {
       transitionFromGameToLobby();

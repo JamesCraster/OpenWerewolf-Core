@@ -38,7 +38,8 @@ export abstract class Game {
   private _resetStartTime: boolean = false;
   private _index: number = -1;
   private _inEndChat: boolean = false;
-  public constructor(server: Server, minPlayerCount: number, maxPlayerCount: number, gameType: string) {
+  private _name: string;
+  public constructor(server: Server, minPlayerCount: number, maxPlayerCount: number, gameType: string, name: string) {
     if (DEBUGMODE) {
       this._startWait = 10000;
     }
@@ -46,8 +47,12 @@ export abstract class Game {
     this._minPlayerCount = minPlayerCount;
     this._maxPlayerCount = maxPlayerCount;
     this._gameType = gameType;
+    this._name = name;
     setInterval(this.pregameLobbyUpdate.bind(this), 500);
     setInterval(this.update.bind(this), 500);
+  }
+  public get name() {
+    return this._name;
   }
   public get inEndChat() {
     return this._inEndChat;
