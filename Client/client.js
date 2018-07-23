@@ -17,8 +17,6 @@ var globalWarn = -1;
 var gameClicked = false;
 var waitingForGame = false;
 var inGame = false;
-var isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
-  navigator.userAgent && !navigator.userAgent.match('CriOS');
 var registered = false;
 var notificationSound = new Audio("162464__kastenfrosch__message.mp3");
 notificationSound.volume = 0.4;
@@ -63,6 +61,15 @@ function updateTime() {
   }
 }
 
+function addPlayerToLobbyList(username) {
+  $('#lobbyList').append('<li>' + username + '</li>');
+}
+
+function removePlayerFromLobbyList(username) {
+  $('#lobbyList li').filter(function () {
+    return $(this).text() === username;
+  }).remove();
+}
 setInterval(updateTime, 1000);
 
 function appendMessage(msg, target, textColor, backgroundColor, usernameColor) {
@@ -100,12 +107,6 @@ function removeMessage(msg, target) {
   }).remove();
 }
 
-function markAsDead(msg) {
-  //$("#playerNames li").filter(function () {
-  //return $(this).text() === msg;
-  //}).text(msg + " (DEAD)");
-}
-
 function lineThroughPlayer(msg, color) {
   $("#playerNames li").filter(function () {
     return $(this).text() === msg;
@@ -114,6 +115,7 @@ function lineThroughPlayer(msg, color) {
     return $(this).text() === msg;
   }).css("text-decoration", "line-through");
 }
+var lobbyChatListContainerSimpleBar = new SimpleBar($('#lobbyChatListContainer')[0]);
 
 function restart() {
   transitionFromGameToLobby();
@@ -145,7 +147,10 @@ $(function () {
       restart();
     }
   });
-
+  $('#lobbyChatForm').submit(() => {
+    socket.emit('lobbyMessage', $('#lobbyChatInput').val());
+    $('#lobbyChatInput').val('');
+  });
   $('#newGameForm').form({
     fields: {
       gameName: {
@@ -367,20 +372,28 @@ $(function () {
   $('document').resize(function () {
 
   })
+  socket.on("lobbyMessage", function (msg, textColor, backgroundColor) {
+    appendMessage(msg, "#lobbyChatList", textColor, undefined, '#cecece');
+    if (Math.abs(lobbyChatListContainerSimpleBar.getScrollElement().scrollTop +
+        lobbyChatListContainerSimpleBar.getScrollElement().clientHeight -
+        lobbyChatListContainerSimpleBar.getScrollElement().scrollHeight) <= 50) {
+      lobbyChatListContainerSimpleBar.getScrollElement().scrollTop = lobbyChatListContainerSimpleBar.getScrollElement().scrollHeight;
+    }
+  });
   socket.on("rightMessage", function (msg, textColor, backgroundColor) {
     appendMessage(msg, "#playerNames", textColor, backgroundColor);
   });
   socket.on("leftMessage", function (msg, textColor, backgroundColor) {
     appendMessage(msg, "#roleNames", textColor, backgroundColor);
-  })
+  });
   socket.on("removeRight", function (msg) {
     removeMessage(msg, "#playerNames");
     removeMessage(" " + msg, '#playerNames');
     console.log("active: " + msg);
-  })
+  });
   socket.on("removeLeft", function (msg) {
     removeMessage(msg, "#roleNames");
-  })
+  });
   socket.on("lineThroughPlayer", function (msg, color) {
     lineThroughPlayer(msg, color);
     lineThroughPlayer(" " + msg, color);
@@ -434,11 +447,11 @@ $(function () {
   socket.on("updateGame", function (name, playerNames, playerColors, number, inPlay) {
     number += 1;
     if (inPlay) {
-      $('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
+      //$('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
       $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("IN PLAY");
       $('#container div:nth-child(' + number.toString() + ')').attr('inPlay', "true");
     } else {
-      $('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
+      //$('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
       $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("OPEN");
       $('#container div:nth-child(' + number.toString() + ')').attr('inPlay', "false");
     }
@@ -453,9 +466,15 @@ $(function () {
       }
     }
   });
-  //removes player from lobby list
-  socket.on("removePlayerFromLobbyList", function (name, game) {
-    var spanList = $('#container div:nth-child(' + (game + 2).toString() + ') p:last span:first span');
+  socket.on('addPlayerToLobbyList', function (username) {
+    addPlayerToLobbyList(username);
+  });
+  socket.on('removePlayerFromLobbyList', function (username) {
+    removePlayerFromLobbyList(username);
+  })
+  //removes player from game list
+  socket.on("removePlayerFromGameList", function (name, game) {
+    var spanList = $('#container div[number=' + game + '] p:last span:first span');
     for (i = 0; i < spanList.length; i++) {
       if ($(spanList[i]).text() == name || $(spanList[i]).text() == " " + name) {
         //remove the separating comma if it exists 
@@ -470,9 +489,9 @@ $(function () {
       }
     }
   });
-  socket.on("addPlayerToLobbyList", function (name, color, game) {
-    var div = $('#container div:nth-child(' + (game + 2).toString() + ') p:last span:first');
-    var spanList = $('#container div:nth-child(' + (game + 2).toString() + ') p:last .username');
+  socket.on("addPlayerToGameList", function (name, color, game) {
+    var div = $('#container div[number=' + game + '] p:last span:first');
+    var spanList = $('#container div[number=' + game + '] p:last .username');
     if (spanList.length == 0) {
       div.append('<span class="username" style="color:' + color + '">' + name);
     } else {
@@ -481,10 +500,10 @@ $(function () {
     }
   });
   socket.on("markGameStatusInLobby", function (game, status) {
-    $('#container div:nth-child(' + (game + 1).toString() + ') p:first span:last').html(status);
+    $('#container div[number=' + game + '] p:first span:last').html(status);
     if (status == "[OPEN]") {
       //clear out the player list as the game has ended
-      $('#container div:nth-child(' + (game + 1).toString() + ') p:last span:first').empty();
+      $('#container div[number=' + game + '] p:last span:first').empty();
     }
   });
   window.onhashchange = function () {
@@ -519,23 +538,17 @@ $(function () {
 });
 
 function transitionFromLandingToLobby() {
-  $('#landingPage').fadeOut('fast', function () {
-    $('#lobbyContainer').show("slow")
+  $('#landingPage').fadeOut(200, function () {
+    $('#lobbyContainer').fadeIn(200);
     location.hash = '#2';
   })
 }
 
 function transitionFromLobbyToGame(gameName) {
   $('#landingPage').fadeOut('fast', function () {
-    if (isSafari) {
-      //get rid of animations
-      $('#lobbyContainer').fadeOut();
-      $('#topLevel').fadeIn();
-    } else {
-      $('#lobbyContainer').fadeOut(200, function () {
-        $('#topLevel').fadeIn(200);
-      });
-    }
+    $('#lobbyContainer').fadeOut(200, function () {
+      $('#topLevel').fadeIn(200);
+    });
     if (gameName) {
       $('#mainGameName').text(gameName);
     }
@@ -546,14 +559,9 @@ function transitionFromLobbyToGame(gameName) {
 
 function transitionFromGameToLobby() {
   $('#landingPage').fadeOut('fast', function () {
-    if (isSafari) {
-      $('#topLevel').hide();
-      $('#lobbyContainer').show();
-    } else {
-      $('#topLevel').fadeOut(200, function () {
-        $('#lobbyContainer').fadeIn(200);
-      });
-    }
+    $('#topLevel').fadeOut(200, function () {
+      $('#lobbyContainer').fadeIn(200);
+    });
     $('#lobbyContainer')[0].scrollTop = 0
   });
 }

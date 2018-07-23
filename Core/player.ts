@@ -179,15 +179,24 @@ export class Player {
      * @param username 
      * @param game 
      */
-    public removePlayerListingFromLobby(username: string, game: number) {
-        this._socket.emit("removePlayerFromLobbyList", username, game);
+    public removePlayerListingFromGame(username: string, game: number) {
+        this._socket.emit("removePlayerFromGameList", username, game);
     }
-    public addListingToLobby(username: string, color: string, game: number) {
-        this._socket.emit("addPlayerToLobbyList", username, color, game);
+    public addListingToGame(username: string, color: string, game: number) {
+        this._socket.emit("addPlayerToGameList", username, color, game);
     }
     public markGameStatusInLobby(game: number, status: string) {
         this._socket.emit("markGameStatusInLobby", game, status);
     }
+    public addPlayerToLobbyList(username: string) {
+        this._socket.emit("addPlayerToLobbyList", username);
+    }
+    public removePlayerFromLobbyList(username: string) {
+        this._socket.emit("removePlayerFromLobbyList", username);
+    }
+    public lobbyMessage(msg: string, textColor: string, backgroundColor?: string) {
+        this._socket.emit("lobbyMessage", msg, textColor, backgroundColor);
+    };
     public setTime(time: number, warn: number) {
         this._socket.emit("setTime", time, warn);
     }

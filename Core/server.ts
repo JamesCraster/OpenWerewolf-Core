@@ -195,11 +195,26 @@ export class Server {
         msg = Server.cleanUpUsername(msg);
 
         if (this.validateUsername(player, msg)) {
+            for (let i = 0; i < this._players.length; i++) {
+                if (this._players[i].registered) {
+                    player.addPlayerToLobbyList(this._players[i].username);
+                }
+            }
             player.register();
             player.setUsername(msg);
             this._registeredPlayerCount++;
+            for (let i = 0; i < this._players.length; i++) {
+                this._players[i].addPlayerToLobbyList(player.username);
+            }
         }
-        //}
+    }
+    public receiveLobbyMessage(id: string, msg: string) {
+        let player = this.getPlayer(id);
+        if (player instanceof Player && player.registered) {
+            for (let i = 0; i < this._players.length; i++) {
+                this._players[i].lobbyMessage(player.username + " : " + msg, '#cecece');
+            }
+        }
     }
     public receive(id: string, msg: string) {
         let player = this.getPlayer(id);
@@ -267,7 +282,7 @@ export class Server {
     }
     public listPlayerInLobby(username: string, color: string, game: number) {
         for (let i = 0; i < this._players.length; i++) {
-            this._players[i].addListingToLobby(username, color, game);
+            this._players[i].addListingToGame(username, color, game);
             //if the player is viewing the game, add joiner to their right bar
             if (this._players[i].game == game) {
                 this._players[i].rightSend(username, color);
@@ -278,7 +293,7 @@ export class Server {
     }
     public unlistPlayerInLobby(username: string, game: number) {
         for (let i = 0; i < this._players.length; i++) {
-            this._players[i].removePlayerListingFromLobby(username, game);
+            this._players[i].removePlayerListingFromGame(username, game);
             //if the player is viewing the game, remove leaver from their right bar
             if (this._players[i].game == game) {
                 this._players[i].removeRight(username);
@@ -298,6 +313,9 @@ export class Server {
                 console.log(this._players.splice(index, 1)[0].username);
                 console.log("Player length after remove: " + this._players.length);
                 if (player.registered && this._registeredPlayerCount > 0) {
+                    for (let i = 0; i < this._players.length; i++) {
+                        this._players[i].removePlayerFromLobbyList(player.username);
+                    }
                     this._registeredPlayerCount--;
                     if (player.inGame) {
                         this._games[player.game].lineThroughPlayer(player.username, "grey");

@@ -94,8 +94,6 @@ app.get("/", function (req: any, res: any) {
   for (let i = 0; i < server.numberOfGames; i++) {
     gameNames.push("Game " + (i + 1).toString());
   }
-  console.log(req.session.loggedIn);
-  console.log(req.session.socketID);
   //add logic with pug to generate correct lobby
   res.render('index', {
     numberOfGames: server.numberOfGames,
@@ -108,7 +106,6 @@ app.get("/", function (req: any, res: any) {
   });
 });
 app.post("/register", function (req: any, res: any) {
-  console.log(req.body);
   let status = "success";
   //run validation
   var letters = /^[A-Za-z]+$/;
@@ -116,7 +113,48 @@ app.post("/register", function (req: any, res: any) {
     if (req.body.username.length > 0 && req.body.username.length <= 10) {
       if (letters.test(req.body.username)) {
         if (!grawlix.isObscene(req.body.username)) {
+          var sql = "SELECT username FROM USERS where username=" + mysql.escape(req.body.username);
+          con.query(sql, function (err: any, results: any) {
+            if (results.length == 0) {
+              if (typeof req.body.email == 'string' || req.body.email instanceof String) {
+                if (req.body.email.length > 0 && req.body.email.length <= 256) {
 
+                } else {
+                  status = 'Your email must be between 1 and 256 characters';
+                }
+              }
+              if (typeof req.body.password == 'string' || req.body.email instanceof String) {
+                if (req.body.password.length > 0 && req.body.password.length <= 256) {
+                  if (typeof req.body.repeatPassword == 'string' || req.body.repeatPassword instanceof String) {
+                    if (req.body.password === req.body.repeatPassword) {
+
+                    } else {
+                      status = 'Your password and repeated password don\'t match';
+                    }
+                  }
+                } else {
+                  status = 'Your password must be between 1 and 256 characters';
+                }
+              }
+
+              if (status == "success") {
+                bcrypt.genSalt(saltNumber, function (err: any, salt: any) {
+                  bcrypt.hash(req.body.password, salt, function (err: any, hash: any) {
+                    var sql = "INSERT INTO USERS VALUES (" + mysql.escape(req.body.username) + "," + mysql.escape(req.body.email) + "," +
+                      mysql.escape(hash) + "," + mysql.escape(salt) + ")";
+                    con.query(sql, function (err: any, result: any) {
+                      if (err) throw err;
+                      console.log("1 record inserted");
+                    })
+                  })
+                });
+              }
+              res.send('{ "result":' + JSON.stringify(status) + '}');
+            } else {
+              status = "This username is already taken. Please change your username";
+              res.send('{ "result":' + JSON.stringify(status) + '}');
+            }
+          });
         } else {
           status = 'Usernames cannot contain profanity. Please change your username';
         }
@@ -127,42 +165,9 @@ app.post("/register", function (req: any, res: any) {
       status = 'Your username must be between 1 and 10 characters';
     }
   }
-  if (typeof req.body.email == 'string' || req.body.email instanceof String) {
-    if (req.body.email.length > 0 && req.body.email.length <= 256) {
-
-    } else {
-      status = 'Your email must be between 1 and 256 characters';
-    }
+  if (status != "success") {
+    res.send('{ "result":' + JSON.stringify(status) + '}');
   }
-  if (typeof req.body.password == 'string' || req.body.email instanceof String) {
-    if (req.body.password.length > 0 && req.body.password.length <= 256) {
-      if (typeof req.body.repeatPassword == 'string' || req.body.repeatPassword instanceof String) {
-        if (req.body.password === req.body.repeatPassword) {
-
-        } else {
-          status = 'Your password and repeated password don\'t match';
-        }
-      }
-    } else {
-      status = 'Your password must be between 1 and 256 characters';
-    }
-  }
-
-  if (status == "success") {
-    console.log('active');
-    bcrypt.genSalt(saltNumber, function (err: any, salt: any) {
-      bcrypt.hash(req.body.password, salt, function (err: any, hash: any) {
-        console.log('active2');
-        var sql = "INSERT INTO USERS VALUES (" + mysql.escape(req.body.username) + "," + mysql.escape(req.body.email) + "," +
-          mysql.escape(hash) + "," + mysql.escape(salt) + ")";
-        con.query(sql, function (err: any, result: any) {
-          if (err) throw err;
-          console.log("1 record inserted");
-        })
-      })
-    });
-  }
-  res.send('{ "result":' + JSON.stringify(status) + '}');
 });
 app.post("/login", function (req: any, res: any) {
   let status = "failure";
@@ -172,13 +177,11 @@ app.post("/login", function (req: any, res: any) {
       if (result[0] != undefined) {
         bcrypt.compare(req.body.password, result[0].encrypted_password, function (err: any, comparisonResult: any) {
           if (comparisonResult == true) {
-            console.log('positive comparison');
             status = "success";
             req.session.loggedIn = true;
             req.session.username = req.body.username;
             req.session.save(() => { });
           } else {
-            console.log('negative comparison');
             status = "Your username or password is incorrect.";
           }
           res.send('{"result":' + JSON.stringify(status) + '}');
@@ -231,6 +234,18 @@ io.on("connection", function (socket: Socket) {
     if (!isNaN(gameNumber)) {
       if (parseInt(gameNumber) != NaN) {
         server.gameClick(socket.id, parseInt(gameNumber));
+      }
+    }
+  });
+  let lobbyTime = 0;
+  socket.on("lobbyMessage", function (msg: string) {
+    if (typeof msg === 'string') {
+      if (Date.now() - time < 500) {
+        time = Date.now();
+        socket.emit("lobbyMessage", "Chat: Please do not spam the chat");
+      } else {
+        time = Date.now();
+        server.receiveLobbyMessage(socket.id, msg);
       }
     }
   });

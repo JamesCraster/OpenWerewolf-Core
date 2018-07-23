@@ -28,7 +28,7 @@ div(id="lobbyContainer" style="display:none; width:100%; height:100%; overflow:h
 
         div(class="inverted right menu")
             include loggedInRightMenu.pug
-    div(id="lobby")
+    div(id="lobby" style="height:calc(100% - 48px);")
         div(id="container" style="margin-top:40px;")
             div(style="text-align:center;")
                 button(id="newGameButton" class="blue ui button" type="submit" style="width:40%") New Game
@@ -41,7 +41,18 @@ div(id="lobbyContainer" style="display:none; width:100%; height:100%; overflow:h
             br
             br
             p(style="visibility:hidden") End of lobby marker
-        div(id="lobbyRightBar" style="width:35%; height:100%")
+        div(id="lobbyRightBar" style="width:35%; height:calc(100%)")
             div(id="lobbyTitleContainer" style="background-color:#303030; border-top:2px solid black; border-bottom:2px solid black")
                 h2(class="ui header" style="color:#cecece; padding-left:5px; padding-top:5px;") Lobby
-            ul(id="lobbyList")
+            div(id="lobbyListContainer" style="height:calc(45% - 35px);")
+                ul(id="lobbyList" style="list-style:none; padding-left:10px; padding-top:5px; color:#cecece; font-size:16px;")
+
+
+            div(id="lobbyChatTitleContainer" style="background-color:#303030; border-top:2px solid black; border-bottom:2px solid black")
+                h2(class="ui header" style="color:#cecece; padding-left:5px; padding-top:5px;") Chat
+            div(id="lobbyChatListContainer" style="height:calc(55% - 95px);overflow:auto;border-bottom:2px solid black;border-radius:none;")
+                ul(id="lobbyChatList" style="justfy-self:start;")
+            form(id="lobbyChatForm")
+                input(id="lobbyChatInput" autocomplete="off" placeholder="Type here" style="color:#cecece; width:200px; border:2px solid black; padding-left:5px; background-color:inherit; margin-left:auto; margin-right:auto; display:block;margin-top:15px;height:30px;outline:none;")
+                
+
