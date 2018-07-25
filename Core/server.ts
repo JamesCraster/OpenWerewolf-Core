@@ -69,6 +69,9 @@ export class Server {
     public addGame(game: Game) {
         this._games.push(game);
         game.index = this._games.length - 1;
+        for (let i = 0; i < this._players.length; i++) {
+            this._players[i].addNewGameToLobby(game.name, game.index, game.gameType);
+        }
     }
     public leaveGame(id: string) {
         let player = this.getPlayer(id);

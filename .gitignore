@@ -43,3 +43,6 @@ Games/Classic/Classic.ts
 Games/Classic/LICENSE
 Games/OneDay/LICENSE
 Games/OneDay/oneDay.ts
+Client/client.js
+Client/components.js
+

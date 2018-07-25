@@ -61,6 +61,7 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
+  margin-top: 12%;
 }
 
 #registerForm {
@@ -78,7 +79,6 @@ body {
 
 #registrationPageTitle {
   font-size: 5em;
-  margin-top: 11%;
   margin-bottom: 20px;
   color: #cecece;
 }
@@ -246,6 +246,22 @@ a {
   width: 35%;
   border-left: $standard-border;
   border-right: $standard-border;
+  border-bottom: $standard-border;
+}
+
+.lobbyItemHeader {
+  overflow: auto;
+  background-color: #1b1c1d;
+  padding-left: 5px;
+  padding-top: 5px;
+  border-bottom: 2px solid #0d0d0e;
+}
+
+.lobbyItemBody {
+  padding-left: 5px;
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
 }
 
 .lobbyItem {
@@ -265,6 +281,7 @@ a {
   background-color: #303030;
   width: 95%;
   border-radius: 3px;
+  position: relative;
 }
 
 #menubar {

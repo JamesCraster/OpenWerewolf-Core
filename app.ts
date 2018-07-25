@@ -180,7 +180,7 @@ app.post("/login", function (req: any, res: any) {
   if (typeof req.body.username == 'string' && typeof req.body.password == 'string') {
     var sql = "SELECT encrypted_password FROM USERS WHERE username=" + mysql.escape(req.body.username);
     con.query(sql, function (err: any, result: any) {
-      if (result != undefined) {
+      if (result.length != 0) {
         bcrypt.compare(req.body.password, result[0].encrypted_password, function (err: any, comparisonResult: any) {
           if (comparisonResult == true) {
             status = "success";

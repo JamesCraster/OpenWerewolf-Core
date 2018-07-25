@@ -34,11 +34,12 @@ div(id="lobbyContainer" style="display:none; width:100%; height:100%; overflow:h
         div(id="container" style="margin-top:40px;")
             div(style="text-align:center;")
                 button(id="newGameButton" class="blue ui button" type="submit" style="width:40%") New Game
-            - var n = numberOfGames - 1;
-            - while(n >= 0){
-                +lobbyEntry(n, gameNames[n], players[n], gameInPlay[n], gameTypes[n])
-                - n -= 1;
-            - }
+            div(id="lobbyItemList")
+                - var n = numberOfGames - 1;
+                - while(n >= 0){
+                    +lobbyEntry(n, gameNames[n], players[n], gameInPlay[n], gameTypes[n])
+                    - n -= 1;
+                - }
             br
             br
             br

@@ -48,7 +48,7 @@ while [ "$1" != "" ]; do
       cp -r Core release
       
       #minify javascript and css on clientside
-      uglifyjs --compress --comments '/license/' -- Client/client.js > release/Client/client.js
+      #uglifyjs --compress --comments '/license/' -- Client/client.js > release/Client/client.js
       cleancss -o release/Client/main.css Client/main.css
       cp Client/*.mp3 release/Client
 

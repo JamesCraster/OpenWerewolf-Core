@@ -36,6 +36,7 @@ html(lang="en")
     
     // Move scrollbar to bottom on window resize 
     body
+        //need to add hidden attr to all of these...
         include includes/register.pug
         include includes/login.pug
         include includes/leaveGameModal.pug
@@ -72,6 +73,9 @@ html(lang="en")
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
     script(src="semantic/dist/semantic.min.js")
     script(src="simplebar.min.js")
+    script(crossorigin src="https://unpkg.com/react@16/umd/react.development.js")
+    script(crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js")
+    script(src="components.js")
     script(src="client.js")
     script
         |$('.newAccountButton').click(function(){$("#registerModal").modal('show');});        

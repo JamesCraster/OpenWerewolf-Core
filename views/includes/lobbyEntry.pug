@@ -12,7 +12,7 @@
      
 mixin lobbyEntry(gameNumber, name, players, inPlay, gameType)
     div(class="lobbyItem" number=gameNumber name=name inPlay="false" ranked="false" style="padding-bottom:5px;position:relative;")
-        div(class="lobbyItemHeader" style="overflow:auto; background-color: #1b1c1d; padding-left:5px; padding-top:5px; border-bottom:2px solid #0d0d0e;")
+        div(class="lobbyItemHeader")
             - if(inPlay){
             p
                 span(class="gameName")= name
@@ -22,7 +22,7 @@ mixin lobbyEntry(gameNumber, name, players, inPlay, gameType)
                 span(class="gameName")= name
                 span(class="inPlay")= "OPEN"
             - }
-        p(style="padding-left:5px;position:absolute; bottom:0px;width:100%;") Players:  
+        p(class="lobbyItemBody") Players:  
             span
                 - var n = 0;
                 - while(n < players.length){
