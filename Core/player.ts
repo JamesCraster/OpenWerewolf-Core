@@ -124,7 +124,7 @@ export class Player {
             playerColors.push(playerNameColorPairs[i].color);
             playerNames.push(playerNameColorPairs[i].username);
         }
-        this.socket.emit("updateGame", name, playerNames, playerColors, number + 1, inPlay);
+        this.socket.emit("updateGame", name, playerNames, playerColors, number, inPlay);
     }
     public verifyAsAdmin(msg: string): boolean {
         if (msg == "!" + password) {

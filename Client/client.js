@@ -32,13 +32,13 @@ function isClientScrolledDown() {
 }
 
 function convertTime(duration) {
-  seconds = parseInt((duration / 1000) % 60);
-  minutes = parseInt((duration / (1000 * 60)) % 60);
-  hours = parseInt((duration / (1000 * 60 * 60)) % 24);
+  seconds = parseInt(duration / 1000 % 60);
+  minutes = parseInt(duration / (1000 * 60) % 60);
+  hours = parseInt(duration / (1000 * 60 * 60) % 24);
 
-  hours = (hours < 10) ? "0" + hours : hours;
-  minutes = (minutes < 10) ? "0" + minutes : minutes;
-  seconds = (seconds < 10) ? "0" + seconds : seconds;
+  hours = hours < 10 ? "0" + hours : hours;
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  seconds = seconds < 10 ? "0" + seconds : seconds;
 
   return minutes + ":" + seconds;
 }
@@ -169,10 +169,16 @@ $(function () {
     if (!$('#newGameForm').form('is valid')) {
       return false;
     }
-    socket.emit("newGame", $("#newGameFormName").val());
-    $('#newGameModal').modal('hide');
+    socket.emit("newGame", $("#newGameFormName").val(), $('#newGameForm input[name=type]:checked').val());
+    //prevent multiple submissions
+    $('#newGameModalCreateButton').addClass('disabled');
+    $('#newGameModal').modal('hide', function () {
+      console.log('hidden');
+      $('#newGameModalCreateButton').removeClass('disabled');
+    });
+    $('#newGameForm').form('reset');
     return false;
-  })
+  });
 
   $('#loginForm').form({
     fields: {
@@ -191,7 +197,7 @@ $(function () {
         }]
       }
     }
-  })
+  });
 
   //create a new form rule to recongnize when the repeated password doesn't match the password
   $.fn.form.settings.rules.repeatMatchInitial = function () {
@@ -277,7 +283,7 @@ $(function () {
       url: '/login',
       data: JSON.stringify({
         "username": $('#loginUsername').val(),
-        "password": $('#loginPassword').val(),
+        "password": $('#loginPassword').val()
       }),
       dataType: 'json',
       contentType: 'application/json',
@@ -340,7 +346,7 @@ $(function () {
   });
   socket.on("clear", function () {
     $('ul').clear();
-  })
+  });
   socket.on("setTitle", function (title) {
     $(document).attr('title', title);
   });
@@ -348,14 +354,57 @@ $(function () {
     notificationSound.play();
   });
   socket.on("addNewGameToLobby", function (name, number, type) {
-
+    const h1 = React.createElement(
+      "h1",
+      null,
+      " Hello world "
+    );
+    var div = document.createElement('div');
+    div.className = "lobbyItemReactContainer";
+    $('#container .simplebar-content #lobbyItemList').prepend(div);
+    ReactDOM.render(React.createElement(LobbyItem, { name: name,
+      number: number,
+      type: type,
+      ranked: "false" }), $('#container .simplebar-content .lobbyItemReactContainer:first')[0]);
+    $('.lobbyItem').click(function () {
+      console.log('active');
+      gameClicked = true;
+      if (!waitingForGame) {
+        transitionFromLobbyToGame($(this).attr('name'));
+      } else {
+        transitionFromLobbyToGame();
+      }
+      location.hash = 3;
+      if ($(this).attr('inPlay') == "false") {
+        if (!waitingForGame) {
+          $('#playerNames').empty();
+          $('#playerNames').append("<li class='gameli'>Players:</li>");
+          var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
+          for (i = 0; i < usernameList.length; i++) {
+            appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
+          }
+          socket.emit("gameClick", $(this).attr('number'));
+          waitingForGame = true;
+        }
+      } else {
+        if (!waitingForGame) {
+          $('#playerNames').empty();
+          $('#playerNames').append("<li class='gameli'>Players:</li>");
+          var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
+          for (i = 0; i < usernameList.length; i++) {
+            appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
+          }
+          appendMessage("This game has already started, please join a different one.", '#chatbox', undefined, "#950d0d");
+        }
+      }
+    });
   });
   socket.on("newGame", function () {
     inGame = true;
     $('#leaveGame').click(function () {
       $('#leaveGameModal').modal('show');
     });;
-  })
+  });
   socket.on("endChat", function () {
     console.log('active');
     $('#leaveGame').off('click');
@@ -377,14 +426,10 @@ $(function () {
   socket.on("registrationError", function (error) {
     $('<p style="color:red;font-size:18px;margin-top:15px;">Invalid: ' + error + '</p>').hide().appendTo('#errors').fadeIn(100);
   });
-  $('document').resize(function () {
-
-  })
+  $('document').resize(function () {});
   socket.on("lobbyMessage", function (msg, textColor, backgroundColor) {
     appendMessage(msg, "#lobbyChatList", textColor, undefined, '#cecece');
-    if (Math.abs(lobbyChatListContainerSimpleBar.getScrollElement().scrollTop +
-        lobbyChatListContainerSimpleBar.getScrollElement().clientHeight -
-        lobbyChatListContainerSimpleBar.getScrollElement().scrollHeight) <= 50) {
+    if (Math.abs(lobbyChatListContainerSimpleBar.getScrollElement().scrollTop + lobbyChatListContainerSimpleBar.getScrollElement().clientHeight - lobbyChatListContainerSimpleBar.getScrollElement().scrollHeight) <= 50) {
       lobbyChatListContainerSimpleBar.getScrollElement().scrollTop = lobbyChatListContainerSimpleBar.getScrollElement().scrollHeight;
     }
   });
@@ -421,6 +466,7 @@ $(function () {
     globalWarn = warn;
   });
   $('.lobbyItem').click(function () {
+    console.log('active');
     gameClicked = true;
     if (!waitingForGame) {
       transitionFromLobbyToGame($(this).attr('name'));
@@ -431,7 +477,7 @@ $(function () {
     if ($(this).attr('inPlay') == "false") {
       if (!waitingForGame) {
         $('#playerNames').empty();
-        $('#playerNames').append("<li class='gameli'>Players:</li>")
+        $('#playerNames').append("<li class='gameli'>Players:</li>");
         var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
         for (i = 0; i < usernameList.length; i++) {
           appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
@@ -442,7 +488,7 @@ $(function () {
     } else {
       if (!waitingForGame) {
         $('#playerNames').empty();
-        $('#playerNames').append("<li class='gameli'>Players:</li>")
+        $('#playerNames').append("<li class='gameli'>Players:</li>");
         var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
         for (i = 0; i < usernameList.length; i++) {
           appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
@@ -453,23 +499,24 @@ $(function () {
   });
 
   socket.on("updateGame", function (name, playerNames, playerColors, number, inPlay) {
-    number += 1;
+    console.log(number);
+    console.log(playerNames);
     if (inPlay) {
       //$('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
-      $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("IN PLAY");
-      $('#container div:nth-child(' + number.toString() + ')').attr('inPlay', "true");
+      $('#container div[number=' + number.toString() + '] p:first span:last').html("IN PLAY");
+      $('#container div[number=' + number.toString() + ']').attr('inPlay', "true");
     } else {
       //$('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
-      $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("OPEN");
-      $('#container div:nth-child(' + number.toString() + ')').attr('inPlay', "false");
+      $('#container div[number=' + number.toString() + '] p:first span:last').html("OPEN");
+      $('#container div[number=' + number.toString() + ']').attr('inPlay', "false");
     }
-    var div = $('#container div:nth-child(' + number.toString() + ') p:last span:first');
+    var div = $('#container div[number=' + number.toString() + '] p:last span:first');
     div.empty();
     for (i = 0; i < playerNames.length; i++) {
       if (i == 0) {
         div.append('<span class="username" style="color:' + playerColors[i] + '">' + playerNames[i]);
       } else {
-        div.append('<span>,')
+        div.append('<span>,');
         div.append('<span class="username" style="color:' + playerColors[i] + '"> ' + playerNames[i]);
       }
     }
@@ -479,7 +526,7 @@ $(function () {
   });
   socket.on('removePlayerFromLobbyList', function (username) {
     removePlayerFromLobbyList(username);
-  })
+  });
   //removes player from game list
   socket.on("removePlayerFromGameList", function (name, game) {
     var spanList = $('#container div[number=' + game + '] p:last span:first span');
@@ -503,13 +550,15 @@ $(function () {
     if (spanList.length == 0) {
       div.append('<span class="username" style="color:' + color + '">' + name);
     } else {
-      div.append('<span>,')
+      div.append('<span>,');
       div.append('<span class="username" style="color:' + color + '"> ' + name);
     }
   });
   socket.on("markGameStatusInLobby", function (game, status) {
-    $('#container div[number=' + game + '] p:first span:last').html(status);
-    if (status == "[OPEN]") {
+    console.log(game);
+    console.log(status);
+    $('#container div[number=' + game.toString() + '] p:first span:last').html(status);
+    if (status == "OPEN") {
       //clear out the player list as the game has ended
       $('#container div[number=' + game + '] p:last span:first').empty();
     }
@@ -526,7 +575,7 @@ $(function () {
         transitionFromGameToLobby();
       }
     }
-  }
+  };
   $(window).resize(function () {
     $('#inner')[0].scrollTop = $('#inner')[0].scrollHeight;
   });
@@ -537,19 +586,18 @@ $(function () {
       socket.emit("message", $("#registerBox").val());
       $("#registerBox").val("");
     }
-  })
+  });
 
   $('#viewLobby').click(() => {
     transitionFromGameToLobby();
-  })
-
+  });
 });
 
 function transitionFromLandingToLobby() {
   $('#landingPage').fadeOut(200, function () {
     $('#lobbyContainer').fadeIn(200);
     location.hash = '#2';
-  })
+  });
 }
 
 function transitionFromLobbyToGame(gameName) {
@@ -560,7 +608,7 @@ function transitionFromLobbyToGame(gameName) {
     if (gameName) {
       $('#mainGameName').text(gameName);
     }
-    $('#topLevel')[0].scrollTop = 0
+    $('#topLevel')[0].scrollTop = 0;
     $('#msg').focus();
   });
 }
@@ -570,6 +618,6 @@ function transitionFromGameToLobby() {
     $('#topLevel').fadeOut(200, function () {
       $('#lobbyContainer').fadeIn(200);
     });
-    $('#lobbyContainer')[0].scrollTop = 0
+    $('#lobbyContainer')[0].scrollTop = 0;
   });
 }

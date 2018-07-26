@@ -228,7 +228,7 @@ export abstract class Game {
       this._players[i].emit('newGame');
     }
     this._inPlay = true;
-    this._server.markGameStatusInLobby(this._index, "[IN PLAY]");
+    this._server.markGameStatusInLobby(this._index, "IN PLAY");
     this.broadcast("*** NEW GAME ***", Colors.brightGreen);
   }
   protected afterEnd() {
@@ -258,7 +258,7 @@ export abstract class Game {
       this._players = [];
       this._registeredPlayerCount = 0;
       this.colorPool = PlayerColorArray.slice();
-      this._server.markGameStatusInLobby(this._index, "[OPEN]");
+      this._server.markGameStatusInLobby(this._index, "OPEN");
       this._inEndChat = false;
     }, this.endTime);
   }

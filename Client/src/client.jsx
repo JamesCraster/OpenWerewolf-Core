@@ -169,13 +169,14 @@ $(function () {
     if (!$('#newGameForm').form('is valid')) {
       return false;
     }
-    socket.emit("newGame", $("#newGameFormName").val(), $('#newGameFormType').val());
+    socket.emit("newGame", $("#newGameFormName").val(), $('#newGameForm input[name=type]:checked').val());
     //prevent multiple submissions
     $('#newGameModalCreateButton').addClass('disabled');
     $('#newGameModal').modal('hide', function () {
       console.log('hidden');
       $('#newGameModalCreateButton').removeClass('disabled');
     });
+    $('#newGameForm').form('reset');
     return false;
   })
 
@@ -357,7 +358,16 @@ $(function () {
     var div = document.createElement('div');
     div.className = "lobbyItemReactContainer"
     $('#container .simplebar-content #lobbyItemList').prepend(div);
-    ReactDOM.render(<LobbyItem name={name} number={number} type={type} ranked='false' />, $('#container .simplebar-content .lobbyItemReactContainer:first')[0]);
+    ReactDOM.render(< LobbyItem name={
+      name
+    }
+      number={
+        number
+      }
+      type={
+        type
+      }
+      ranked='false' />, $('#container .simplebar-content .lobbyItemReactContainer:first')[0]);
     $('.lobbyItem').click(function () {
       console.log('active');
       gameClicked = true;
@@ -495,17 +505,18 @@ $(function () {
   });
 
   socket.on("updateGame", function (name, playerNames, playerColors, number, inPlay) {
-    number += 1;
+    console.log(number);
+    console.log(playerNames);
     if (inPlay) {
       //$('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
-      $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("IN PLAY");
-      $('#container div:nth-child(' + number.toString() + ')').attr('inPlay', "true");
+      $('#container div[number=' + number.toString() + '] p:first span:last').html("IN PLAY");
+      $('#container div[number=' + number.toString() + ']').attr('inPlay', "true");
     } else {
       //$('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
-      $('#container div:nth-child(' + number.toString() + ') p:first span:last').html("OPEN");
-      $('#container div:nth-child(' + number.toString() + ')').attr('inPlay', "false");
+      $('#container div[number=' + number.toString() + '] p:first span:last').html("OPEN");
+      $('#container div[number=' + number.toString() + ']').attr('inPlay', "false");
     }
-    var div = $('#container div:nth-child(' + number.toString() + ') p:last span:first');
+    var div = $('#container div[number=' + number.toString() + '] p:last span:first');
     div.empty();
     for (i = 0; i < playerNames.length; i++) {
       if (i == 0) {
@@ -550,8 +561,10 @@ $(function () {
     }
   });
   socket.on("markGameStatusInLobby", function (game, status) {
-    $('#container div[number=' + game + '] p:first span:last').html(status);
-    if (status == "[OPEN]") {
+    console.log(game);
+    console.log(status);
+    $('#container div[number=' + game.toString() + '] p:first span:last').html(status);
+    if (status == "OPEN") {
       //clear out the player list as the game has ended
       $('#container div[number=' + game + '] p:last span:first').empty();
     }

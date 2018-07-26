@@ -100,6 +100,11 @@ app.get("/", function (req: any, res: any) {
   for (let i = 0; i < server.games.length; i++) {
     gameNames.push(server.games[i].name);
   }
+  console.log(server.numberOfGames);
+  console.log(gameNames);
+  console.log(server.playerNameColorPairs);
+  console.log(server.inPlayArray);
+  console.log(server.gameTypes);
   //add logic with pug to generate correct lobby
   res.render('index', {
     numberOfGames: server.numberOfGames,
@@ -255,9 +260,13 @@ io.on("connection", function (socket: Socket) {
       }
     }
   });
-  socket.on("newGame", function (name: string) {
+  socket.on("newGame", function (name: string, type: string) {
     if (typeof name == 'string') {
-      server.addGame(new OneDay(server, name));
+      if (type == 'OneDay') {
+        server.addGame(new OneDay(server, name));
+      } else if (type == 'Classic') {
+        server.addGame(new Classic(server, name));
+      }
     }
   });
 });
