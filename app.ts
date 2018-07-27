@@ -39,6 +39,7 @@ var grawlix = require('grawlix');
 var mysql = require('mysql');
 var bcrypt = require('bcrypt');
 var saltNumber = 10;
+var uid = 0;
 
 redisServer.open(((err: string) => { }));
 
@@ -61,12 +62,14 @@ if (myArgs[0] == "debug") {
   console.log("debug mode active");
 }
 
-server.addGame(new OneDay(server, "Game 1"));
-server.addGame(new OneDay(server, "Game 2"));
-server.addGame(new OneDay(server, "Game 3"));
-server.addGame(new Classic(server, "Game 4"));
-server.addGame(new Classic(server, "Game 5"));
-server.addGame(new Classic(server, "Game 6"));
+
+//server.addGame(new OneDay(server, "Game 1", '1'));
+//server.addGame(new OneDay(server, "Game 2"));
+//server.addGame(new OneDay(server, "Game 3"));
+//server.addGame(new Classic(server, "Game 4"));
+//server.addGame(new Classic(server, "Game 5"));
+//server.addGame(new Classic(server, "Game 6"));
+
 
 //create a session cookie
 var session = expressSession({
@@ -100,6 +103,10 @@ app.get("/", function (req: any, res: any) {
   for (let i = 0; i < server.games.length; i++) {
     gameNames.push(server.games[i].name);
   }
+  let uids = [];
+  for (let i = 0; i < server.games.length; i++) {
+    uids.push(server.games[i].uid);
+  }
   console.log(server.numberOfGames);
   console.log(gameNames);
   console.log(server.playerNameColorPairs);
@@ -113,7 +120,8 @@ app.get("/", function (req: any, res: any) {
     gameInPlay: server.inPlayArray,
     gameTypes: server.gameTypes,
     loggedIn: req.session.loggedIn,
-    username: req.session.username
+    username: req.session.username,
+    uids: uids
   });
 });
 app.post("/register", function (req: any, res: any) {
@@ -263,9 +271,11 @@ io.on("connection", function (socket: Socket) {
   socket.on("newGame", function (name: string, type: string) {
     if (typeof name == 'string') {
       if (type == 'OneDay') {
-        server.addGame(new OneDay(server, name));
+        uid += 1;
+        server.addGame(new OneDay(server, name, uid.toString()));
       } else if (type == 'Classic') {
-        server.addGame(new Classic(server, name));
+        uid += 1;
+        server.addGame(new Classic(server, name, uid.toString()));
       }
     }
   });

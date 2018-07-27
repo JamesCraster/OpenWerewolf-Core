@@ -39,10 +39,12 @@ export abstract class Game {
   private _index: number = -1;
   private _inEndChat: boolean = false;
   private _name: string;
-  public constructor(server: Server, minPlayerCount: number, maxPlayerCount: number, gameType: string, name: string) {
+  private _uid: string;
+  public constructor(server: Server, minPlayerCount: number, maxPlayerCount: number, gameType: string, name: string, uid: string) {
     if (DEBUGMODE) {
       this._startWait = 10000;
     }
+    this._uid = uid;
     this._server = server;
     this._minPlayerCount = minPlayerCount;
     this._maxPlayerCount = maxPlayerCount;
@@ -56,6 +58,9 @@ export abstract class Game {
   }
   public get inEndChat() {
     return this._inEndChat;
+  }
+  public get uid() {
+    return this._uid;
   }
   public set index(index: number) {
     this._index = index;

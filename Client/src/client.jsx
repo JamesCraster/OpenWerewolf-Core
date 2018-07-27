@@ -140,6 +140,9 @@ function restart() {
   });
 }
 $(function () {
+  if ($('#lobbyItemList .lobbyItem').length == 0) {
+    ReactDOM.render(<p id="emptyLobbyItemPrompt" style={{ textAlign: 'center', marginTop: '20px', fontStyle: 'italic', fontSize: '1.1em' }}>Create a new game to play</p>, $('#lobbyItemList')[0]);
+  }
   $('#registerBox').focus();
   $('#leaveGame').click(function () {
     if (!inGame) {
@@ -353,21 +356,13 @@ $(function () {
   socket.on("notify", function () {
     notificationSound.play();
   });
-  socket.on("addNewGameToLobby", function (name, number, type) {
-    const h1 = <h1> Hello world </h1>;
+  socket.on("addNewGameToLobby", function (name, number, type, uid) {
+    $('#emptyLobbyItemPrompt').css('display', 'none');
     var div = document.createElement('div');
     div.className = "lobbyItemReactContainer"
     $('#container .simplebar-content #lobbyItemList').prepend(div);
-    ReactDOM.render(< LobbyItem name={
-      name
-    }
-      number={
-        number
-      }
-      type={
-        type
-      }
-      ranked='false' />, $('#container .simplebar-content .lobbyItemReactContainer:first')[0]);
+    ReactDOM.render(< LobbyItem name={name} number={number} type={type} uid={uid} ranked='false' />,
+      $('#container .simplebar-content .lobbyItemReactContainer:first')[0]);
     $('.lobbyItem').click(function () {
       console.log('active');
       gameClicked = true;

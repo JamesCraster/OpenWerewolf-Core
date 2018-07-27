@@ -221,7 +221,7 @@ export class Player {
     public registrationError(message: string) {
         this._socket.emit('registrationError', message)
     }
-    public addNewGameToLobby(name: string, number: number, type: string) {
-        this._socket.emit("addNewGameToLobby", name, number, type);
+    public addNewGameToLobby(name: string, number: number, type: string, uid: string) {
+        this._socket.emit("addNewGameToLobby", name, number, type, uid);
     }
 }

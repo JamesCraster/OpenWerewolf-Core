@@ -2,7 +2,8 @@ class LobbyItem extends React.Component {
 
     render() {
         return (
-            <div className="lobbyItem" number={this.props.number} name={this.props.name} inplay="false" ranked={this.props.ranked}>
+            <div className="lobbyItem" number={this.props.number} name={this.props.name}
+                inplay="false" ranked={this.props.ranked} uid={this.props.uid}>
                 <div className="lobbyItemHeader">
                     <p>
                         <span className="gameName">{this.props.name}</span>

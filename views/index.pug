@@ -18,6 +18,7 @@
 //gameTypes : array of strings, each correspoding to a game title
 //loggedIn : boolean, true if the player is logged in, false otherwise
 //username: the username of the logged in player
+//uids : the unique ids of the games
 
 doctype html
 include includes/lobbyEntry.pug
@@ -83,4 +84,5 @@ html(lang="en")
         |$('#newGameButton').click(function(){$('#newGameModal').modal("show");});
         | new SimpleBar($('#container')[0]);
         | new SimpleBar($('#lobbyListContainer')[0]);
+        |$('.simplebar-content').css('overflow-x', 'hidden');
         | 

@@ -10,8 +10,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
      
-mixin lobbyEntry(gameNumber, name, players, inPlay, gameType)
-    div(class="lobbyItem" number=gameNumber name=name inPlay="false" ranked="false" style="padding-bottom:5px;position:relative;")
+mixin lobbyEntry(gameNumber, name, players, inPlay, gameType, uid)
+    div(class="lobbyItem" uid=uid number=gameNumber name=name inPlay="false" ranked="false" style="padding-bottom:5px;position:relative;")
         div(class="lobbyItemHeader")
             - if(inPlay){
             p
