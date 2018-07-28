@@ -131,6 +131,7 @@ function restart() {
   $('#roleNames').append('<li class="gameli">Time: 00:00</li>');
   $('#roleNames').append('<li class="gameli">Roles:</li>');
   $('#chatbox').empty();
+  $('#leaveGame').off('click');
   $('#leaveGame').click(function () {
     if (!inGame) {
       transitionFromGameToLobby();
@@ -148,6 +149,7 @@ $(function () {
     ), $('#lobbyItemList')[0]);
   }
   $('#registerBox').focus();
+  $('#leaveGame').off('click');
   $('#leaveGame').click(function () {
     if (!inGame) {
       transitionFromGameToLobby();
@@ -342,7 +344,7 @@ $(function () {
   socket.on("registered", function () {
     transitionFromLandingToLobby();
     registered = true;
-    //$('#leaveGame').css('background-color', "#3f0082");
+    $('#leaveGame').off('click');
     $('#leaveGame').click(function () {
       if (!inGame) {
         transitionFromGameToLobby();
@@ -360,14 +362,17 @@ $(function () {
   socket.on("notify", function () {
     notificationSound.play();
   });
-  socket.on("addNewGameToLobby", function (name, number, type, uid) {
+  socket.on('removeGameFromLobby', function (uid) {
+    $('#container .lobbyItem[uid=' + uid + ']').remove();
+  });
+  socket.on("addNewGameToLobby", function (name, type, uid) {
     $('#emptyLobbyItemPrompt').css('display', 'none');
     var div = document.createElement('div');
     div.className = "lobbyItemReactContainer";
     $('#container .simplebar-content #lobbyItemList').prepend(div);
-    ReactDOM.render(React.createElement(LobbyItem, { name: name, number: number, type: type, uid: uid, ranked: "false" }), $('#container .simplebar-content .lobbyItemReactContainer:first')[0]);
+    ReactDOM.render(React.createElement(LobbyItem, { name: name, type: type, uid: uid, ranked: "false" }), $('#container .simplebar-content .lobbyItemReactContainer:first')[0]);
+    $('.lobbyItem').off('click');
     $('.lobbyItem').click(function () {
-      console.log('active');
       gameClicked = true;
       if (!waitingForGame) {
         transitionFromLobbyToGame($(this).attr('name'));
@@ -377,20 +382,21 @@ $(function () {
       location.hash = 3;
       if ($(this).attr('inPlay') == "false") {
         if (!waitingForGame) {
+          $('#chatbox').empty();
           $('#playerNames').empty();
           $('#playerNames').append("<li class='gameli'>Players:</li>");
-          var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
+          var usernameList = $(".lobbyItem[uid=" + $(this).attr('uid') + "] .username");
           for (i = 0; i < usernameList.length; i++) {
             appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
           }
-          socket.emit("gameClick", $(this).attr('number'));
+          socket.emit("gameClick", $(this).attr('uid'));
           waitingForGame = true;
         }
       } else {
         if (!waitingForGame) {
           $('#playerNames').empty();
           $('#playerNames').append("<li class='gameli'>Players:</li>");
-          var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
+          var usernameList = $(".lobbyItem[uid=" + $(this).attr('uid') + "] .username");
           for (i = 0; i < usernameList.length; i++) {
             appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
           }
@@ -401,6 +407,7 @@ $(function () {
   });
   socket.on("newGame", function () {
     inGame = true;
+    $('#leaveGame').off('click');
     $('#leaveGame').click(function () {
       $('#leaveGameModal').modal('show');
     });;
@@ -465,6 +472,7 @@ $(function () {
     globalTime = time;
     globalWarn = warn;
   });
+  $('.lobbyItem').off('click');
   $('.lobbyItem').click(function () {
     console.log('active');
     gameClicked = true;
@@ -476,20 +484,21 @@ $(function () {
     location.hash = 3;
     if ($(this).attr('inPlay') == "false") {
       if (!waitingForGame) {
+        $('#chatbox').empty();
         $('#playerNames').empty();
         $('#playerNames').append("<li class='gameli'>Players:</li>");
-        var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
+        var usernameList = $(".lobbyItem[uid=" + $(this).attr('uid') + "] .username");
         for (i = 0; i < usernameList.length; i++) {
           appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
         }
-        socket.emit("gameClick", $(this).attr('number'));
+        socket.emit("gameClick", $(this).attr('uid'));
         waitingForGame = true;
       }
     } else {
       if (!waitingForGame) {
         $('#playerNames').empty();
         $('#playerNames').append("<li class='gameli'>Players:</li>");
-        var usernameList = $(".lobbyItem[number=" + $(this).attr('number') + "] .username");
+        var usernameList = $(".lobbyItem[uid=" + $(this).attr('uid') + "] .username");
         for (i = 0; i < usernameList.length; i++) {
           appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
         }
@@ -499,18 +508,16 @@ $(function () {
   });
 
   socket.on("updateGame", function (name, playerNames, playerColors, number, inPlay) {
-    console.log(number);
-    console.log(playerNames);
     if (inPlay) {
       //$('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
-      $('#container div[number=' + number.toString() + '] p:first span:last').html("IN PLAY");
-      $('#container div[number=' + number.toString() + ']').attr('inPlay', "true");
+      $('#container div[uid=' + number.toString() + '] p:first span:last').html("IN PLAY");
+      $('#container div[uid=' + number.toString() + ']').attr('inPlay', "true");
     } else {
       //$('#container div:nth-child(' + number.toString() + ') p:first span:first').html(name);
-      $('#container div[number=' + number.toString() + '] p:first span:last').html("OPEN");
-      $('#container div[number=' + number.toString() + ']').attr('inPlay', "false");
+      $('#container div[uid=' + number.toString() + '] p:first span:last').html("OPEN");
+      $('#container div[uid=' + number.toString() + ']').attr('inPlay', "false");
     }
-    var div = $('#container div[number=' + number.toString() + '] p:last span:first');
+    var div = $('#container div[uid=' + number.toString() + '] p:last span:first');
     div.empty();
     for (i = 0; i < playerNames.length; i++) {
       if (i == 0) {
@@ -529,7 +536,7 @@ $(function () {
   });
   //removes player from game list
   socket.on("removePlayerFromGameList", function (name, game) {
-    var spanList = $('#container div[number=' + game + '] p:last span:first span');
+    var spanList = $('#container div[uid=' + game + '] p:last span:first span');
     for (i = 0; i < spanList.length; i++) {
       if ($(spanList[i]).text() == name || $(spanList[i]).text() == " " + name) {
         //remove the separating comma if it exists 
@@ -545,8 +552,8 @@ $(function () {
     }
   });
   socket.on("addPlayerToGameList", function (name, color, game) {
-    var div = $('#container div[number=' + game + '] p:last span:first');
-    var spanList = $('#container div[number=' + game + '] p:last .username');
+    var div = $('#container div[uid=' + game + '] p:last span:first');
+    var spanList = $('#container div[uid=' + game + '] p:last .username');
     if (spanList.length == 0) {
       div.append('<span class="username" style="color:' + color + '">' + name);
     } else {
@@ -557,10 +564,15 @@ $(function () {
   socket.on("markGameStatusInLobby", function (game, status) {
     console.log(game);
     console.log(status);
-    $('#container div[number=' + game.toString() + '] p:first span:last').html(status);
+    if (status == "OPEN") {
+      $('#container div[uid=' + game + ']').attr('inplay', 'false');
+    } else if (status == "IN PLAY") {
+      $('#container div[uid=' + game + ']').attr('inplay', 'true');
+    }
+    $('#container div[uid=' + game + '] p:first span:last').html(status);
     if (status == "OPEN") {
       //clear out the player list as the game has ended
-      $('#container div[number=' + game + '] p:last span:first').empty();
+      $('#container div[uid=' + game + '] p:last span:first').empty();
     }
   });
   window.onhashchange = function () {

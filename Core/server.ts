@@ -36,10 +36,10 @@ export class Server {
     public setDebug() {
         this._debugMode = true;
     }
-    public gameClick(id: string, game: number) {
+    public gameClick(id: string, gameId: string) {
         let player = this.getPlayer(id);
         if (player) {
-            player.gameClickedLast = game;
+            player.gameClickedLast = gameId;
         }
     }
     public get gameTypes() {
@@ -59,6 +59,22 @@ export class Server {
     public get numberOfGames() {
         return this._games.length;
     }
+    public getGameById(uid: string): Game | undefined {
+        for (let i = 0; i < this._games.length; i++) {
+            if (this._games[i].uid == uid) {
+                return this._games[i];
+            }
+        }
+        return undefined;
+    }
+    public getIndexOfGameById(uid: string): number | undefined {
+        for (let i = 0; i < this._games.length; i++) {
+            if (this._games[i].uid == uid) {
+                return i;
+            }
+        }
+        return undefined;
+    }
     public get playerNameColorPairs() {
         let playerNameColorPairs = [];
         for (let i = 0; i < this._games.length; i++) {
@@ -68,18 +84,26 @@ export class Server {
     }
     public addGame(game: Game) {
         this._games.push(game);
-        game.index = this._games.length - 1;
         for (let i = 0; i < this._players.length; i++) {
-            this._players[i].addNewGameToLobby(game.name, game.index, game.gameType, game.uid);
+            this._players[i].addNewGameToLobby(game.name, game.gameType, game.uid);
+        }
+    }
+    public removeGame(game: Game) {
+        let index = this._games.indexOf(game);
+        if (index != -1) {
+            for (let i = 0; i < this._players.length; i++) {
+                this._players[i].removeGameFromLobby(this._games[index].uid);
+            }
+            this._games.splice(index, 1);
         }
     }
     public leaveGame(id: string) {
         let player = this.getPlayer(id);
         if (player instanceof Player) {
             if (player.registered && player.inGame) {
-                if (player.game >= 0 && player.game < this._games.length) {
-                    if (this._games[player.game].inPlay == false || this._games[player.game].inEndChat) {
-                        this._games[player.game].kick(player);
+                if (player.game != undefined) {
+                    if (player.game.inPlay == false || player.game.inEndChat) {
+                        player.game.kick(player);
                         player.resetAfterGame();
                     }
                 }
@@ -89,34 +113,36 @@ export class Server {
     //join waiting players to games
     private joinGame() {
         this._players.forEach(player => {
-            if (player.registered && !player.inGame && player.gameClickedLast >= 0 && player.gameClickedLast < this._games.length) {
-                let j = player.gameClickedLast;
-                //if game needs a player
-                if (this._games[j].playersNeeded > 0) {
-                    player.inGame = true;
-                    player.game = j;
-                    player.send(
-                        "Hi, " +
-                        player.username +
-                        "! You have joined Game " +
-                        (j + 1).toString() +
-                        "."
-                    );
-                    this._games[j].broadcast(player.username + " has joined the game");
-                    player.send("There are " + (this._games[j].playerCount + 1).toString() + " players in this game");
-                    if (this._games[j].minimumPlayersNeeded - 1 > 0) {
-                        this._games[j].broadcast("The game will begin when at least " + (this._games[j].minimumPlayersNeeded - 1).toString() + " more players have joined");
-                        //if just hit the minimum number of players
-                    } else if (this._games[j].minimumPlayersNeeded - 1 == 0) {
-                        this._games[j].broadcast("The game will start in 30 seconds. Type \"/start\" to start the game now");
-                    }
-                    this._games[j].addPlayer(player);
-                    if (this._games[j].minimumPlayersNeeded > 0) {
-                        player.send("The game will begin when at least " + (this._games[j].minimumPlayersNeeded).toString() + " more players have joined");
-                        //if just hit the minimum number of players
-                    } else if (this._games[j].minimumPlayersNeeded == 0) {
-                        player.send("The game will start in 30 seconds. Type \"/start\" to start the game now");
-                        this._games[j].setAllTime(this._games[j].startWait, 10000);
+            if (player.registered && !player.inGame && player.gameClickedLast != '') {
+                let j = this.getIndexOfGameById(player.gameClickedLast);
+                if (j != undefined) {
+                    //if game needs a player
+                    if (this._games[j].playersNeeded > 0) {
+                        player.inGame = true;
+                        player.game = this._games[j];
+                        player.send(
+                            "Hi, " +
+                            player.username +
+                            "! You have joined Game " +
+                            (j + 1).toString() +
+                            "."
+                        );
+                        this._games[j].broadcast(player.username + " has joined the game");
+                        player.send("There are " + (this._games[j].playerCount + 1).toString() + " players in this game");
+                        if (this._games[j].minimumPlayersNeeded - 1 > 0) {
+                            this._games[j].broadcast("The game will begin when at least " + (this._games[j].minimumPlayersNeeded - 1).toString() + " more players have joined");
+                            //if just hit the minimum number of players
+                        } else if (this._games[j].minimumPlayersNeeded - 1 == 0) {
+                            this._games[j].broadcast("The game will start in 30 seconds. Type \"/start\" to start the game now");
+                        }
+                        this._games[j].addPlayer(player);
+                        if (this._games[j].minimumPlayersNeeded > 0) {
+                            player.send("The game will begin when at least " + (this._games[j].minimumPlayersNeeded).toString() + " more players have joined");
+                            //if just hit the minimum number of players
+                        } else if (this._games[j].minimumPlayersNeeded == 0) {
+                            player.send("The game will start in 30 seconds. Type \"/start\" to start the game now");
+                            this._games[j].setAllTime(this._games[j].startWait, 10000);
+                        }
                     }
                 }
             }
@@ -171,7 +197,7 @@ export class Server {
         //update the games for the player as they have been absent for about 2 seconds, if they were reloading.
         for (let j = 0; j < this._games.length; j++) {
             this._players[this._players.length - 1].updateGameListing("Game " + (j + 1).toString(),
-                this._games[j].playerNameColorPairs, j, this._games[j].inPlay);
+                this._games[j].playerNameColorPairs, this._games[j].uid, this._games[j].inPlay);
         }
         console.log("Player length on add: " + this._players.length);
 
@@ -190,8 +216,9 @@ export class Server {
                 }
             }
         }
-        if (player.gameClickedLast >= 0 && player.gameClickedLast < this._games.length) {
-            if (this._games[player.gameClickedLast].playersNeeded == 0) {
+        let game = this.getGameById(player.gameClickedLast);
+        if (game != undefined) {
+            if (game.playersNeeded == 0) {
                 player.send("This game is has already started, please join a different one.");
                 return;
             }
@@ -235,19 +262,19 @@ export class Server {
                             player.send('You have been granted administrator access', undefined, Colors.green);
                         }
                         if (player.admin) {
-                            if (this._games[player.game].isPlayer(id)) {
-                                this._games[player.game].adminReceive(player, msg);
+                            if (player.game != undefined && player.game.isPlayer(id)) {
+                                player.game.adminReceive(player, msg);
                             }
                         }
-                    } else if (msg[0] == "/" && !this._games[player.game].inPlay && player.startVote == false) {
+                    } else if (msg[0] == "/" && player.game != undefined && !player.game.inPlay && player.startVote == false) {
                         if (Utils.isCommand(msg, "/start")) {
                             player.startVote = true;
-                            this._games[player.game].broadcast(player.username + " has voted to start the game immediately by typing \"/start\"");
+                            player.game.broadcast(player.username + " has voted to start the game immediately by typing \"/start\"");
                         }
-                    } else if (this.validateMessage(msg)) {
+                    } else if (player.game != undefined && this.validateMessage(msg)) {
                         msg = grawlix(msg, { style: "asterix" });
-                        if (this._games[player.game].isPlayer(id)) {
-                            this._games[player.game].receive(player, msg);
+                        if (player.game.isPlayer(id)) {
+                            player.game.receive(player, msg);
                         }
                     }
                 }
@@ -281,29 +308,29 @@ export class Server {
             return true;
         }
     }
-    public markGameStatusInLobby(game: number, status: string) {
+    public markGameStatusInLobby(game: Game, status: string) {
         for (let i = 0; i < this._players.length; i++) {
             this._players[i].markGameStatusInLobby(game, status);
         }
     }
-    public listPlayerInLobby(username: string, color: string, game: number) {
+    public listPlayerInLobby(username: string, color: string, game: Game) {
         for (let i = 0; i < this._players.length; i++) {
             this._players[i].addListingToGame(username, color, game);
             //if the player is viewing the game, add joiner to their right bar
-            if (this._players[i].game == game) {
+            if (this._players[i].game != undefined && this._players[i].game == game) {
                 this._players[i].rightSend(username, color);
-            } else if (!this._players[i].inGame && this._players[i].gameClickedLast == game) {
+            } else if (!this._players[i].inGame && this._players[i].gameClickedLast == game.uid) {
                 this._players[i].rightSend(username, color);
             }
         }
     }
-    public unlistPlayerInLobby(username: string, game: number) {
+    public unlistPlayerInLobby(username: string, game: Game) {
         for (let i = 0; i < this._players.length; i++) {
             this._players[i].removePlayerListingFromGame(username, game);
             //if the player is viewing the game, remove leaver from their right bar
             if (this._players[i].game == game) {
                 this._players[i].removeRight(username);
-            } else if (!this._players[i].inGame && this._players[i].gameClickedLast == game) {
+            } else if (!this._players[i].inGame && this._players[i].gameClickedLast == game.uid) {
                 this._players[i].removeRight(username);
             }
         }
@@ -323,14 +350,14 @@ export class Server {
                         this._players[i].removePlayerFromLobbyList(player.username);
                     }
                     this._registeredPlayerCount--;
-                    if (player.inGame) {
-                        this._games[player.game].lineThroughPlayer(player.username, "grey");
-                        if (!this._games[player.game].inPlay) {
-                            this._games[player.game].kick(player);
+                    if (player.inGame && player.game != undefined) {
+                        player.game.lineThroughPlayer(player.username, "grey");
+                        if (!player.game.inPlay) {
+                            player.game.kick(player);
                             console.log("active")
                         } else {
-                            this._games[player.game].broadcast(player.username + " has disconnected.");
-                            this._games[player.game].disconnect(player);
+                            player.game.broadcast(player.username + " has disconnected.");
+                            player.game.disconnect(player);
                         }
                         player.disconnect();
                     }

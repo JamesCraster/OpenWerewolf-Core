@@ -15,6 +15,7 @@
 
 import { Socket } from "../node_modules/@types/socket.io";
 import { NameColorPair } from "./utils";
+import { Game } from "./game";
 //set this to what the admin password should be
 const password = "goat";
 
@@ -31,14 +32,14 @@ export class Player {
     //object that can be used to flexibly add data to player for game purposes
     public data: PlayerData = {};
     //index of the game the player is in in the server's 'games' array
-    private _game: number = -1;
+    private _game: undefined | Game = undefined;
     //true if the player has disconnected entirely
     private _disconnected: boolean = false;
     private _admin: boolean = false;
     private _startVote: boolean = false;
     //username color
     private _color: string = "";
-    private _gameClickedLast: number = -1;
+    private _gameClickedLast: string = '';
     private _session: string = "";
     //true if already playing in another tab
     private _cannotRegister: boolean = false;
@@ -49,12 +50,12 @@ export class Player {
         this._session = session;
     }
     public resetAfterGame(): void {
+        this._game = undefined;
         this._inGame = false;
         this.data = {};
-        this._game = -1;
         this._startVote = false;
         this._color = "";
-        this._gameClickedLast = -1;
+        this.gameClickedLast = '';
     }
     public banFromRegistering(): void {
         this._cannotRegister = true;
@@ -62,7 +63,7 @@ export class Player {
     get cannotRegister() {
         return this._cannotRegister;
     }
-    set gameClickedLast(game: number) {
+    set gameClickedLast(game: string) {
         this._gameClickedLast = game;
     }
     get gameClickedLast() {
@@ -83,7 +84,7 @@ export class Player {
     public disconnect() {
         this._disconnected = true;
     }
-    get game() {
+    get game(): undefined | Game {
         return this._game;
     }
     get id() {
@@ -92,7 +93,7 @@ export class Player {
     get inGame() {
         return this._inGame;
     }
-    set game(game: number) {
+    set game(game: undefined | Game) {
         this._game = game;
     }
     set inGame(isInGame: boolean) {
@@ -117,14 +118,14 @@ export class Player {
     get username() {
         return this._username;
     }
-    public updateGameListing(name: string, playerNameColorPairs: Array<NameColorPair>, number: number, inPlay: boolean) {
+    public updateGameListing(name: string, playerNameColorPairs: Array<NameColorPair>, uid: string, inPlay: boolean) {
         let playerNames: Array<string> = [];
         let playerColors: Array<string> = [];
         for (let i = 0; i < playerNameColorPairs.length; i++) {
             playerColors.push(playerNameColorPairs[i].color);
             playerNames.push(playerNameColorPairs[i].username);
         }
-        this.socket.emit("updateGame", name, playerNames, playerColors, number, inPlay);
+        this.socket.emit("updateGame", name, playerNames, playerColors, uid, inPlay);
     }
     public verifyAsAdmin(msg: string): boolean {
         if (msg == "!" + password) {
@@ -179,14 +180,14 @@ export class Player {
      * @param username 
      * @param game 
      */
-    public removePlayerListingFromGame(username: string, game: number) {
-        this._socket.emit("removePlayerFromGameList", username, game);
+    public removePlayerListingFromGame(username: string, game: Game) {
+        this._socket.emit("removePlayerFromGameList", username, game.uid);
     }
-    public addListingToGame(username: string, color: string, game: number) {
-        this._socket.emit("addPlayerToGameList", username, color, game);
+    public addListingToGame(username: string, color: string, game: Game) {
+        this._socket.emit("addPlayerToGameList", username, color, game.uid);
     }
-    public markGameStatusInLobby(game: number, status: string) {
-        this._socket.emit("markGameStatusInLobby", game, status);
+    public markGameStatusInLobby(game: Game, status: string) {
+        this._socket.emit("markGameStatusInLobby", game.uid, status);
     }
     public addPlayerToLobbyList(username: string) {
         this._socket.emit("addPlayerToLobbyList", username);
@@ -221,7 +222,10 @@ export class Player {
     public registrationError(message: string) {
         this._socket.emit('registrationError', message)
     }
-    public addNewGameToLobby(name: string, number: number, type: string, uid: string) {
-        this._socket.emit("addNewGameToLobby", name, number, type, uid);
+    public addNewGameToLobby(name: string, type: string, uid: string) {
+        this._socket.emit("addNewGameToLobby", name, type, uid);
+    }
+    public removeGameFromLobby(uid: string) {
+        this._socket.emit('removeGameFromLobby', uid)
     }
 }

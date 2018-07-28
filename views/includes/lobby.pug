@@ -18,15 +18,15 @@ div(id="lobbyContainer" style="display:none; width:100%; height:100%; overflow:h
             a(class="item" href="https://discord.gg/AYmr9vc" target="_blank") Discord
 
         div(class="ui inverted menu" style="margin:auto")
-            a(class="item") All
-            a(class="item") Beginner
-            a(class="item") Ranked
+            a(class="item" id="filterAll") All
+            a(class="item" id="filterBeginner") Beginner
+            a(class="item" id="filterRanked") Ranked
             div(class="ui inverted compact menu")
                     div(class="ui simple dropdown item") Mode
                         i(class="dropdown icon")
                         div(class="ui inverted menu")
-                            div(class="item") OneDay
-                            div(class="item") Classic    
+                            div(class="item" id="filterOneDay") OneDay
+                            div(class="item" id="filterClassic") Classic    
 
         div(class="inverted right menu")
             include loggedInRightMenu.pug

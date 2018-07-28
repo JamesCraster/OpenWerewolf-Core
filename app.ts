@@ -249,11 +249,9 @@ io.on("connection", function (socket: Socket) {
   socket.on("disconnect", function () {
     server.kick(socket.id);
   });
-  socket.on("gameClick", function (gameNumber) {
-    if (!isNaN(gameNumber)) {
-      if (parseInt(gameNumber) != NaN) {
-        server.gameClick(socket.id, parseInt(gameNumber));
-      }
+  socket.on("gameClick", function (gameId: string) {
+    if (parseInt(gameId) != NaN) {
+      server.gameClick(socket.id, gameId);
     }
   });
   let lobbyTime = 0;
