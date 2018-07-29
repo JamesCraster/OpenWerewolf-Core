@@ -44,6 +44,7 @@ function convertTime(duration) {
 }
 
 function updateTime() {
+  console.log(globalTime);
   if (globalTime > 0) {
     globalTime -= Date.now() - globalNow;
     globalNow = Date.now();
@@ -476,7 +477,9 @@ $(function () {
     console.log("disconnected and then reconnected");
   });
   socket.on("setTime", function (time, warn) {
-    $($("#roleNames li")[0]).text("Time: " + convertTime(time));
+    if (time > 0) {
+      $($("#roleNames li")[0]).text("Time: " + convertTime(time));
+    }
     $($("#roleNames li")[0]).css("color", "#cecece");
     globalNow = Date.now();
     globalTime = time;
@@ -620,9 +623,12 @@ function transitionFromLandingToLobby() {
   $('#landingPage').fadeOut(200, function () {
     $('#lobbyContainer').fadeIn(200);
     location.hash = '#2';
+    //scroll down the lobby chat
+    lobbyChatListContainerSimpleBar.getScrollElement().scrollTop = lobbyChatListContainerSimpleBar.getScrollElement().scrollHeight;
   })
 }
-
+//only use when the player has created a new tab
+//and should connect to the game they were previously in
 function transitionFromLandingToGame(gameName, uid) {
   $('#landingPage').fadeOut('fast', function () {
     $('#playerNames').empty();
@@ -631,11 +637,16 @@ function transitionFromLandingToGame(gameName, uid) {
     for (i = 0; i < usernameList.length; i++) {
       appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
     }
+    gameClicked = true;
+    waitingForGame = true;
+    registered = true;
     $('#topLevel').fadeIn(200);
     if (gameName) {
       $('#mainGameName').text(gameName);
     }
-    $('#topLevel')[0].scrollTop = 0
+    //scroll down the game chatbox
+    $("#inner")[0].scrollTop = $("#inner")[0].scrollHeight - $('#inner')[0].clientHeight;
+    $('#topLevel')[0].scrollTop = 0;
     $('#msg').focus();
   });
 }
@@ -657,7 +668,9 @@ function transitionFromGameToLobby() {
   $('#landingPage').fadeOut('fast', function () {
     $('#topLevel').fadeOut(200, function () {
       $('#lobbyContainer').fadeIn(200);
+      //scroll down the lobby chat
+      lobbyChatListContainerSimpleBar.getScrollElement().scrollTop = lobbyChatListContainerSimpleBar.getScrollElement().scrollHeight;
     });
-    $('#lobbyContainer')[0].scrollTop = 0
+    $('#lobbyContainer')[0].scrollTop = 0;
   });
 }

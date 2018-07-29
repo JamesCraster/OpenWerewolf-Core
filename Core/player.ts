@@ -14,7 +14,7 @@
 "use strict";
 
 import { Socket } from "../node_modules/@types/socket.io";
-import { NameColorPair } from "./utils";
+import { NameColorPair, Stopwatch } from "./utils";
 import { Game } from "./game";
 //set this to what the admin password should be
 const password = "goat";
@@ -71,11 +71,15 @@ export class Player {
     private _cannotRegister: boolean = false;
     private _id: string;
     private _cache: Array<Message> = [];
-
+    private _time: number = 0;
+    private _stopwatch: Stopwatch;
+    private _warn: number = 0;
     public constructor(id: string, session: string) {
         this._id = id;
         this._username = "randomuser";
         this._session = session;
+        this._stopwatch = new Stopwatch();
+        this._stopwatch.stop();
     }
     public resetAfterGame(): void {
         this._game = undefined;
@@ -250,6 +254,16 @@ export class Player {
     };
     public setTime(time: number, warn: number) {
         this.emit("setTime", time, warn);
+        this._time = time;
+        this._warn = warn;
+        this._stopwatch.restart();
+        this._stopwatch.start();
+    }
+    public getTime() {
+        return this._time - this._stopwatch.time;
+    }
+    public getWarn() {
+        return this._warn;
     }
     get startVote() {
         return this._startVote;

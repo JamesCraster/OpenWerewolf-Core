@@ -24,6 +24,7 @@ export class Server {
     private _games: Array<Game> = [];
     private _registeredPlayerCount: number = 0;
     private _debugMode: boolean = false;
+    private _lobbyChatCache: Array<Message> = [];
     public constructor() {
         this._registeredPlayerCount = 0;
         this._games = [];
@@ -212,6 +213,8 @@ export class Server {
                                 this._players[i].cache[j].usernameColor);
                         }
                     }
+                    //send the client the correct time
+                    socket.emit('setTime', this._players[i].getTime(), this._players[i].getWarn());
                 }
             }
             if (!alreadyPlaying) {
@@ -221,6 +224,10 @@ export class Server {
         } else {
             newPlayer.addSocket(socket);
             this._players.push(newPlayer);
+        }
+        //update lobby chat for the client
+        for (let i = 0; i < this._lobbyChatCache.length; i++) {
+            socket.emit("lobbyMessage", this._lobbyChatCache[i].message, this._lobbyChatCache[i].textColor);
         }
         //update the games for the player as they have been absent for about 2 seconds, if they were reloading.
         for (let j = 0; j < this._games.length; j++) {
@@ -274,7 +281,12 @@ export class Server {
             for (let i = 0; i < this._players.length; i++) {
                 this._players[i].lobbyMessage(player.username + " : " + msg, '#cecece');
             }
+            this._lobbyChatCache.push(new Message(player.username + " : " + msg, '#cecece'));
+            if (this._lobbyChatCache.length > 50) {
+                this._lobbyChatCache.splice(0, 1);
+            }
         }
+
     }
     public receive(id: string, msg: string) {
         let player = this.getPlayer(id);
@@ -380,6 +392,9 @@ export class Server {
                     //if the player isn't in a game in play, remove them
                     if (!player.inGame || !player.registered) {
                         this._players.splice(index, 1)[0];
+                        for (let i = 0; i < this._players.length; i++) {
+                            this._players[i].removePlayerFromLobbyList(player.username);
+                        }
                     } else if (player.inGame && player.game != undefined && !player.game.inPlay) {
                         for (let i = 0; i < this._players.length; i++) {
                             this._players[i].removePlayerFromLobbyList(player.username);
