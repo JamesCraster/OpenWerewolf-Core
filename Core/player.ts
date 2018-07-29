@@ -23,10 +23,36 @@ interface PlayerData {
     [key: string]: any;
 }
 
+//data structure for messages, used when storing them for retrieval (e.g on page reload)
+export class Message {
+    private _message: string;
+    private _textColor: string | undefined = undefined;
+    private _usernameColor: string | undefined = undefined;
+    private _backgroundColor: string | undefined = undefined;
+    constructor(message: string, textColor?: string, backgroundColor?: string, usernameColor?: string) {
+        this._message = message;
+        this._textColor = textColor;
+        this._backgroundColor = backgroundColor;
+        this._usernameColor = usernameColor;
+    }
+    get message() {
+        return this._message;
+    }
+    get textColor() {
+        return this._textColor;
+    }
+    get backgroundColor() {
+        return this._backgroundColor;
+    }
+    get usernameColor() {
+        return this._usernameColor;
+    }
+}
+
 export class Player {
     //true if the player has a username
     private _registered: boolean = false;
-    private readonly _socket: Socket;
+    private _sockets: Array<Socket> = [];
     private _inGame: boolean = false;
     private _username: string = "randomuser";
     //object that can be used to flexibly add data to player for game purposes
@@ -43,9 +69,11 @@ export class Player {
     private _session: string = "";
     //true if already playing in another tab
     private _cannotRegister: boolean = false;
+    private _id: string;
+    private _cache: Array<Message> = [];
 
-    public constructor(socket: Socket, session: string) {
-        this._socket = socket;
+    public constructor(id: string, session: string) {
+        this._id = id;
         this._username = "randomuser";
         this._session = session;
     }
@@ -56,6 +84,7 @@ export class Player {
         this._startVote = false;
         this._color = "";
         this.gameClickedLast = '';
+        this._cache = [];
     }
     public banFromRegistering(): void {
         this._cannotRegister = true;
@@ -70,10 +99,33 @@ export class Player {
         return this._gameClickedLast;
     }
     /**
+     * Sends event to this player
+     * 
+     * @param {string} event 
+     * @memberof Player
+     */
+    public emit(event: string, ...args: Array<string | number | string[] | boolean | undefined>) {
+        for (let i = 0; i < this._sockets.length; i++) {
+            this._sockets[i].emit(event, ...args);
+        }
+    }
+    public addSocket(socket: Socket) {
+        this._sockets.push(socket);
+    }
+    public removeSocket(socket: Socket) {
+        let index = this._sockets.indexOf(socket);
+        if (index != -1) {
+            this._sockets.splice(index, 1);
+        }
+    }
+    get socketCount() {
+        return this._sockets.length;
+    }
+    /**
      * Causes the client to emit a notification sound 
      */
     public sound(sound: string) {
-        this._socket.emit("sound", sound);
+        this.emit("sound", sound);
     }
     get session() {
         return this._session;
@@ -88,7 +140,7 @@ export class Player {
         return this._game;
     }
     get id() {
-        return this._socket.id;
+        return this._id;
     }
     get inGame() {
         return this._inGame;
@@ -103,14 +155,15 @@ export class Player {
      * Sets html title of client.
      */
     set title(title: string) {
-        this._socket.emit('setTitle', title);
+        this.emit('setTitle', title);
     }
     get registered() {
         return this._registered;
     }
     public register() {
-        this._socket.emit('registered');
+        this.emit('registered');
         this._registered = true;
+        console.log('registration called');
     }
     public setUsername(username: string) {
         this._username = username;
@@ -125,7 +178,7 @@ export class Player {
             playerColors.push(playerNameColorPairs[i].color);
             playerNames.push(playerNameColorPairs[i].username);
         }
-        this.socket.emit("updateGame", name, playerNames, playerColors, uid, inPlay);
+        this.emit("updateGame", name, playerNames, playerColors, uid, inPlay);
     }
     public verifyAsAdmin(msg: string): boolean {
         if (msg == "!" + password) {
@@ -138,41 +191,38 @@ export class Player {
     get admin(): boolean {
         return this._admin;
     }
-    /**
-     * Sends event to this player
-     * 
-     * @param {string} event 
-     * @memberof Player
-     */
-    public emit(event: string) {
-        this._socket.emit(event);
-    }
     /** 
      * send message to this player and only this player
      * @param msg
      */
     public send(msg: string, textColor?: string, backgroundColor?: string, usernameColor?: string): void {
-        this._socket.emit("message", msg, textColor, backgroundColor, usernameColor);
+        this.emit("message", msg, textColor, backgroundColor, usernameColor);
+        this._cache.push(new Message(msg, textColor, backgroundColor, usernameColor));
+        if (this._cache.length > 50) {
+            this._cache.splice(0, 1);
+        }
     }
-
+    get cache() {
+        return this._cache;
+    }
     //These functions manipulate the two boxes either side of the central chatbox
     public rightSend(msg: string, textColor?: string, backgroundColor?: string): void {
-        this._socket.emit("rightMessage", msg, textColor, backgroundColor);
+        this.emit("rightMessage", msg, textColor, backgroundColor);
     }
     public leftSend(msg: string, textColor?: string, backgroundColor?: string): void {
-        this._socket.emit("leftMessage", msg, textColor, backgroundColor)
+        this.emit("leftMessage", msg, textColor, backgroundColor)
     }
     public removeRight(msg: string) {
-        this._socket.emit("removeRight", msg);
+        this.emit("removeRight", msg);
     }
     public removeLeft(msg: string) {
-        this._socket.emit("removeLeft", msg);
+        this.emit("removeLeft", msg);
     }
     public lineThroughPlayer(msg: string, color: string) {
-        this._socket.emit("lineThroughPlayer", msg, color);
+        this.emit("lineThroughPlayer", msg, color);
     }
     public markAsDead(msg: string) {
-        this._socket.emit("markAsDead", msg);
+        this.emit("markAsDead", msg);
     }
     /**
      * Removes another player's username from the lobby
@@ -181,28 +231,25 @@ export class Player {
      * @param game 
      */
     public removePlayerListingFromGame(username: string, game: Game) {
-        this._socket.emit("removePlayerFromGameList", username, game.uid);
+        this.emit("removePlayerFromGameList", username, game.uid);
     }
     public addListingToGame(username: string, color: string, game: Game) {
-        this._socket.emit("addPlayerToGameList", username, color, game.uid);
+        this.emit("addPlayerToGameList", username, color, game.uid);
     }
     public markGameStatusInLobby(game: Game, status: string) {
-        this._socket.emit("markGameStatusInLobby", game.uid, status);
+        this.emit("markGameStatusInLobby", game.uid, status);
     }
     public addPlayerToLobbyList(username: string) {
-        this._socket.emit("addPlayerToLobbyList", username);
+        this.emit("addPlayerToLobbyList", username);
     }
     public removePlayerFromLobbyList(username: string) {
-        this._socket.emit("removePlayerFromLobbyList", username);
+        this.emit("removePlayerFromLobbyList", username);
     }
     public lobbyMessage(msg: string, textColor: string, backgroundColor?: string) {
-        this._socket.emit("lobbyMessage", msg, textColor, backgroundColor);
+        this.emit("lobbyMessage", msg, textColor, backgroundColor);
     };
     public setTime(time: number, warn: number) {
-        this._socket.emit("setTime", time, warn);
-    }
-    get socket() {
-        return this._socket;
+        this.emit("setTime", time, warn);
     }
     get startVote() {
         return this._startVote;
@@ -220,12 +267,12 @@ export class Player {
         return this.id == otherPlayer.id;
     }
     public registrationError(message: string) {
-        this._socket.emit('registrationError', message)
+        this.emit('registrationError', message)
     }
     public addNewGameToLobby(name: string, type: string, uid: string) {
-        this._socket.emit("addNewGameToLobby", name, type, uid);
+        this.emit("addNewGameToLobby", name, type, uid);
     }
     public removeGameFromLobby(uid: string) {
-        this._socket.emit('removeGameFromLobby', uid)
+        this.emit('removeGameFromLobby', uid)
     }
 }

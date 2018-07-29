@@ -14,7 +14,7 @@
 "use strict";
 
 import { Socket } from "../node_modules/@types/socket.io";
-import { Player } from './player';
+import { Player, Message } from './player';
 import { Game } from './game';
 import { Utils, Colors } from './utils'
 var grawlix = require("grawlix");
@@ -183,24 +183,52 @@ export class Server {
         }
         return true;
     }
-    public addPlayer(socket: Socket, session: string) {
-        let newPlayer = new Player(socket, session);
+    public addPlayer(socket: Socket, session: string, id: string): string | undefined {
+        let output = undefined;
+        let newPlayer = new Player(id, session);
         if (!this._debugMode) {
+            let alreadyPlaying: boolean = false;
             for (let i = 0; i < this._players.length; i++) {
                 if (this._players[i].registered && this._players[i].session == session) {
-                    socket.emit("message", "You're already playing a game in a different tab, so you cannot join this one.", undefined, Colors.red);
-                    newPlayer.banFromRegistering();
+                    console.log('added Socket');
+                    this._players[i].addSocket(socket);
+                    alreadyPlaying = true;
+                    output = this._players[i].id;
+                    //update lobby list for the client
+                    for (let i = 0; i < this._players.length; i++) {
+                        if (this._players[i].registered) {
+                            socket.emit("addPlayerToLobbyList", this._players[i].username);
+                        }
+                    }
+                    //send the client into the correct game or to the lobby
+                    let game = this._players[i].game;
+                    if (!this._players[i].inGame) {
+                        socket.emit('transitionToLobby');
+                    } else if (game != undefined) {
+                        socket.emit('transitionToGame', game.name, game.uid);
+                        for (let j = 0; j < this._players[i].cache.length; j++) {
+                            socket.emit("message", this._players[i].cache[j].message,
+                                this._players[i].cache[j].textColor, this._players[i].cache[j].backgroundColor,
+                                this._players[i].cache[j].usernameColor);
+                        }
+                    }
                 }
             }
+            if (!alreadyPlaying) {
+                newPlayer.addSocket(socket);
+                this._players.push(newPlayer);
+            }
+        } else {
+            newPlayer.addSocket(socket);
+            this._players.push(newPlayer);
         }
-        this._players.push(newPlayer);
         //update the games for the player as they have been absent for about 2 seconds, if they were reloading.
         for (let j = 0; j < this._games.length; j++) {
             this._players[this._players.length - 1].updateGameListing("Game " + (j + 1).toString(),
                 this._games[j].playerNameColorPairs, this._games[j].uid, this._games[j].inPlay);
         }
         console.log("Player length on add: " + this._players.length);
-
+        return output;
     }
     private register(player: Player, msg: string) {
         if (!this._debugMode) {
@@ -223,8 +251,7 @@ export class Server {
                 return;
             }
         }
-        //if (player.gameClickedLast >= 0 && player.gameClickedLast < this._games.length) {
-        //get rid of spaces in name and make lowercase
+
         msg = Server.cleanUpUsername(msg);
 
         if (this.validateUsername(player, msg)) {
@@ -275,6 +302,7 @@ export class Server {
                         msg = grawlix(msg, { style: "asterix" });
                         if (player.game.isPlayer(id)) {
                             player.game.receive(player, msg);
+                            console.log('received by game');
                         }
                     }
                 }
@@ -335,17 +363,35 @@ export class Server {
             }
         }
     }
+    public removeSocketFromPlayer(id: string, socket: Socket) {
+        for (let i = 0; i < this._players.length; i++) {
+            if (this._players[i].id == id) {
+                this._players[i].removeSocket(socket);
+            }
+        }
+    }
     public kick(id: string): void {
         var player = this.getPlayer(id);
         if (player instanceof Player) {
-            console.log(player.username);
-            var index = this._players.indexOf(player);
-            console.log("Player index: " + index);
-            if (index !== -1) {
-                console.log("Player length before remove: " + this._players.length);
-                console.log(this._players.splice(index, 1)[0].username);
-                console.log("Player length after remove: " + this._players.length);
-                if (player.registered && this._registeredPlayerCount > 0) {
+            //if player has no sockets (i.e no one is connected to this player)
+            if (player.socketCount == 0) {
+                var index = this._players.indexOf(player);
+                if (index !== -1) {
+                    //if the player isn't in a game in play, remove them
+                    if (!player.inGame || !player.registered) {
+                        this._players.splice(index, 1)[0];
+                    } else if (player.inGame && player.game != undefined && !player.game.inPlay) {
+                        for (let i = 0; i < this._players.length; i++) {
+                            this._players[i].removePlayerFromLobbyList(player.username);
+                        }
+                        player.game.kick(player);
+                        this._players.splice(index, 1)[0];
+                    }
+                }
+                //console.log("Player length before remove: " + this._players.length);
+                //console.log(this._players.splice(index, 1)[0].username);
+                //console.log("Player length after remove: " + this._players.length);
+                /*if (player.registered && this._registeredPlayerCount > 0) {
                     for (let i = 0; i < this._players.length; i++) {
                         this._players[i].removePlayerFromLobbyList(player.username);
                     }
@@ -362,6 +408,7 @@ export class Server {
                         player.disconnect();
                     }
                 }
+            }*/
             }
         } else {
             console.log(

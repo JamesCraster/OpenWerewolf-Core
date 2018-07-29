@@ -351,13 +351,14 @@ export abstract class Game {
  * Adds 'muted' and 'deafened' properties to Player so that it can be used in a MessageRoom.      
  * Each MessageRoom will have a different MessageRoomMember for the same Player.
  */
-class MessageRoomMember extends Player {
+class MessageRoomMember {
   private _muted: boolean = false;
   private _deafened: boolean = false;
   private _permanentlyMuted: boolean = false;
   private _permanentlyDeafened: boolean = false;
-  constructor(socket: Socket, session: string) {
-    super(socket, session);
+  private _member: Player;
+  constructor(member: Player) {
+    this._member = member;
   }
   public permanentlyMute() {
     this._permanentlyMuted = true;
@@ -389,6 +390,12 @@ class MessageRoomMember extends Player {
       this._deafened = false;
     }
   }
+  get id() {
+    return this._member.id;
+  }
+  public send(message: string, textColor?: string, backgroundColor?: string, usernameColor?: string) {
+    this._member.send(message, textColor, backgroundColor, usernameColor);
+  }
 }
 export class MessageRoom {
   private _members: Array<MessageRoomMember> = [];
@@ -411,6 +418,7 @@ export class MessageRoom {
         for (var i = 0; i < this._members.length; i++) {
           if (!this._members[i].deafened) {
             this._members[i].send(msg, textColor, backgroundColor, usernameColor);
+            //console.log("message sent to: " + this._members[i].username);
           }
         }
       }
@@ -424,7 +432,7 @@ export class MessageRoom {
     }
   }
   public addPlayer(player: Player) {
-    this._members.push(new MessageRoomMember(player.socket, player.session));
+    this._members.push(new MessageRoomMember(player));
   }
   public removePlayer(player: Player) {
     let member = this.getMemberById(player.id);

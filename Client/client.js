@@ -334,6 +334,12 @@ $(function () {
     return false;
   });
 
+  socket.on("transitionToLobby", function () {
+    transitionFromLandingToLobby();
+  });
+  socket.on("transitionToGame", function (name, uid) {
+    transitionFromLandingToGame(name, uid);
+  });
   socket.on("message", function (msg, textColor, backgroundColor, usernameColor) {
     appendMessage(msg, "#chatbox", textColor, backgroundColor, usernameColor);
   });
@@ -364,6 +370,13 @@ $(function () {
   });
   socket.on('removeGameFromLobby', function (uid) {
     $('#container .lobbyItem[uid=' + uid + ']').remove();
+    if ($('#lobbyItemList .lobbyItem').length == 0) {
+      ReactDOM.render(React.createElement(
+        "p",
+        { id: "emptyLobbyItemPrompt", style: { textAlign: 'center', marginTop: '20px', fontStyle: 'italic', fontSize: '1.1em' } },
+        "Create a new game to play"
+      ), $('#lobbyItemList')[0]);
+    }
   });
   socket.on("addNewGameToLobby", function (name, type, uid) {
     $('#emptyLobbyItemPrompt').css('display', 'none');
@@ -609,6 +622,23 @@ function transitionFromLandingToLobby() {
   $('#landingPage').fadeOut(200, function () {
     $('#lobbyContainer').fadeIn(200);
     location.hash = '#2';
+  });
+}
+
+function transitionFromLandingToGame(gameName, uid) {
+  $('#landingPage').fadeOut('fast', function () {
+    $('#playerNames').empty();
+    $('#playerNames').append("<li class='gameli'>Players:</li>");
+    var usernameList = $(".lobbyItem[uid=" + uid + "] .username");
+    for (i = 0; i < usernameList.length; i++) {
+      appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
+    }
+    $('#topLevel').fadeIn(200);
+    if (gameName) {
+      $('#mainGameName').text(gameName);
+    }
+    $('#topLevel')[0].scrollTop = 0;
+    $('#msg').focus();
   });
 }
 

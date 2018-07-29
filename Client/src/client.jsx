@@ -330,6 +330,12 @@ $(function () {
     return false;
   });
 
+  socket.on("transitionToLobby", function () {
+    transitionFromLandingToLobby();
+  })
+  socket.on("transitionToGame", function (name, uid) {
+    transitionFromLandingToGame(name, uid);
+  })
   socket.on("message", function (msg, textColor, backgroundColor, usernameColor) {
     appendMessage(msg, "#chatbox", textColor, backgroundColor, usernameColor);
   });
@@ -615,6 +621,23 @@ function transitionFromLandingToLobby() {
     $('#lobbyContainer').fadeIn(200);
     location.hash = '#2';
   })
+}
+
+function transitionFromLandingToGame(gameName, uid) {
+  $('#landingPage').fadeOut('fast', function () {
+    $('#playerNames').empty();
+    $('#playerNames').append("<li class='gameli'>Players:</li>")
+    var usernameList = $(".lobbyItem[uid=" + uid + "] .username");
+    for (i = 0; i < usernameList.length; i++) {
+      appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
+    }
+    $('#topLevel').fadeIn(200);
+    if (gameName) {
+      $('#mainGameName').text(gameName);
+    }
+    $('#topLevel')[0].scrollTop = 0
+    $('#msg').focus();
+  });
 }
 
 function transitionFromLobbyToGame(gameName) {

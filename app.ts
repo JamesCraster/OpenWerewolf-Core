@@ -39,7 +39,8 @@ var grawlix = require('grawlix');
 var mysql = require('mysql');
 var bcrypt = require('bcrypt');
 var saltNumber = 10;
-var uid = 0;
+var uGameid = 0;
+var uPlayerid = 0;
 
 redisServer.open(((err: string) => { }));
 
@@ -61,15 +62,6 @@ if (myArgs[0] == "debug") {
   server.setDebug();
   console.log("debug mode active");
 }
-
-
-//server.addGame(new OneDay(server, "Game 1", '1'));
-//server.addGame(new OneDay(server, "Game 2"));
-//server.addGame(new OneDay(server, "Game 3"));
-//server.addGame(new Classic(server, "Game 4"));
-//server.addGame(new Classic(server, "Game 5"));
-//server.addGame(new Classic(server, "Game 6"));
-
 
 //create a session cookie
 var session = expressSession({
@@ -222,7 +214,8 @@ app.post("/logout", function (req: any, res: any) {
 app.get("*", function (req: any, res: any) {
   res.render("404");
 });
-//handle requests
+
+//handle socket requests
 io.on("connection", function (socket: Socket) {
   //set the session unless it is already set
   if (!socket.request.session.socketID) {
@@ -230,7 +223,16 @@ io.on("connection", function (socket: Socket) {
     socket.request.session.save();
   }
   let time = 0;
-  server.addPlayer(socket, socket.request.session.socketID);
+  uPlayerid++;
+  let thisPlayerId = uPlayerid.toString();
+  let oldPlayerId = server.addPlayer(socket, socket.request.session.socketID, thisPlayerId);
+
+  //if the player is already playing on a different tab, their playerId changes to 
+  //forward their messages as if they came from the first tab
+  if (oldPlayerId != undefined) {
+    thisPlayerId = oldPlayerId;
+  }
+
   socket.on("message", function (msg: string) {
     if (typeof msg === 'string') {
       //filter for spam(consecutive messages within 1/2 a second)
@@ -239,19 +241,20 @@ io.on("connection", function (socket: Socket) {
         time = Date.now();
       } else {
         time = Date.now();
-        server.receive(socket.id, msg);
+        server.receive(thisPlayerId, msg);
       }
     }
   });
   socket.on('leaveGame', function () {
-    server.leaveGame(socket.id);
+    server.leaveGame(thisPlayerId);
   });
   socket.on("disconnect", function () {
-    server.kick(socket.id);
+    server.removeSocketFromPlayer(thisPlayerId, socket);
+    server.kick(thisPlayerId);
   });
   socket.on("gameClick", function (gameId: string) {
     if (parseInt(gameId) != NaN) {
-      server.gameClick(socket.id, gameId);
+      server.gameClick(thisPlayerId, gameId);
     }
   });
   let lobbyTime = 0;
@@ -262,18 +265,18 @@ io.on("connection", function (socket: Socket) {
         socket.emit("lobbyMessage", "Chat: Please do not spam the chat");
       } else {
         time = Date.now();
-        server.receiveLobbyMessage(socket.id, msg);
+        server.receiveLobbyMessage(thisPlayerId, msg);
       }
     }
   });
   socket.on("newGame", function (name: string, type: string) {
     if (typeof name == 'string') {
       if (type == 'OneDay') {
-        uid += 1;
-        server.addGame(new OneDay(server, name, uid.toString()));
+        uGameid += 1;
+        server.addGame(new OneDay(server, name, uGameid.toString()));
       } else if (type == 'Classic') {
-        uid += 1;
-        server.addGame(new Classic(server, name, uid.toString()));
+        uGameid += 1;
+        server.addGame(new Classic(server, name, uGameid.toString()));
       }
     }
   });
