@@ -191,30 +191,34 @@ export class Server {
             let alreadyPlaying: boolean = false;
             for (let i = 0; i < this._players.length; i++) {
                 if (this._players[i].registered && this._players[i].session == session) {
-                    console.log('added Socket');
-                    this._players[i].addSocket(socket);
                     alreadyPlaying = true;
-                    output = this._players[i].id;
-                    //update lobby list for the client
-                    for (let i = 0; i < this._players.length; i++) {
-                        if (this._players[i].registered) {
-                            socket.emit("addPlayerToLobbyList", this._players[i].username);
+                    if (this._players[i].socketCount < 3) {
+                        console.log('added Socket');
+                        this._players[i].addSocket(socket);
+                        output = this._players[i].id;
+                        //update lobby list for the client
+                        for (let i = 0; i < this._players.length; i++) {
+                            if (this._players[i].registered) {
+                                socket.emit("addPlayerToLobbyList", this._players[i].username);
+                            }
                         }
-                    }
-                    //send the client into the correct game or to the lobby
-                    let game = this._players[i].game;
-                    if (!this._players[i].inGame) {
-                        socket.emit('transitionToLobby');
-                    } else if (game != undefined) {
-                        socket.emit('transitionToGame', game.name, game.uid);
-                        for (let j = 0; j < this._players[i].cache.length; j++) {
-                            socket.emit("message", this._players[i].cache[j].message,
-                                this._players[i].cache[j].textColor, this._players[i].cache[j].backgroundColor,
-                                this._players[i].cache[j].usernameColor);
+                        //send the client into the correct game or to the lobby
+                        let game = this._players[i].game;
+                        if (!this._players[i].inGame) {
+                            socket.emit('transitionToLobby');
+                        } else if (game != undefined) {
+                            socket.emit('transitionToGame', game.name, game.uid);
+                            for (let j = 0; j < this._players[i].cache.length; j++) {
+                                socket.emit("message", this._players[i].cache[j].message,
+                                    this._players[i].cache[j].textColor, this._players[i].cache[j].backgroundColor,
+                                    this._players[i].cache[j].usernameColor);
+                            }
                         }
+                        //send the client the correct time
+                        socket.emit('setTime', this._players[i].getTime(), this._players[i].getWarn());
+                    } else {
+                        socket.emit('registrationError', "You can't have more than 3 game tabs open at once.");
                     }
-                    //send the client the correct time
-                    socket.emit('setTime', this._players[i].getTime(), this._players[i].getWarn());
                 }
             }
             if (!alreadyPlaying) {

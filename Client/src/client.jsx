@@ -170,19 +170,54 @@ $(function () {
       }
     }
   });
-
+  let newGameFormOngoing = false;
   $('#newGameForm').submit(() => {
     if (!$('#newGameForm').form('is valid')) {
       return false;
     }
-    socket.emit("newGame", $("#newGameFormName").val(), $('#newGameForm input[name=type]:checked').val());
-    //prevent multiple submissions
+    if (newGameFormOngoing) {
+      return false;
+    }
     $('#newGameModalCreateButton').addClass('disabled');
-    $('#newGameModal').modal('hide', function () {
-      console.log('hidden');
-      $('#newGameModalCreateButton').removeClass('disabled');
+    $('#addNewGameAdditionalError').text('');
+    $('#newGameForm').addClass('loading');
+    newGameFormOngoing = true;
+    $.ajax({
+      type: 'POST',
+      url: '/newGame',
+      data: JSON.stringify({
+        "name": $("#newGameFormName").val(),
+        "type": $('#newGameForm input[name=type]:checked').val(),
+      }),
+      dataType: 'json',
+      contentType: 'application/json',
+      success: function (data) {
+        console.log(data.result);
+        if (data.result == "success") {
+          //prevent multiple submissions
+          $('#newGameModal').modal('hide', function () {
+            console.log('hidden');
+            $('#newGameModalCreateButton').removeClass('disabled');
+            newGameFormOngoing = false;
+            $('#newGameForm').removeClass('loading');
+          });
+          $('#newGameForm').form('reset');
+          $('#addNewGameAdditionalError').text('');
+        } else {
+          $('#newGameModalCreateButton').removeClass('disabled');
+          $('#addNewGameAdditionalError').text(data.result);
+          $('#newGameFormName').val('');
+          newGameFormOngoing = false;
+          $('#newGameForm').removeClass('loading');
+        }
+      },
+      error: function (error) {
+        newGameFormOngoing = false;
+        console.log("There has been an error");
+        console.log(error);
+      }
     });
-    $('#newGameForm').form('reset');
+
     return false;
   })
 

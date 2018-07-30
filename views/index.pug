@@ -27,10 +27,9 @@ html(lang="en")
         meta(charset="UTF-8")
         meta(name="description" content="The online multiplayer werewolf game that's 100% open-source.")
         link(rel="icon" href="icon.png")
-        link(rel="stylesheet" type="text/css" href="simplebar.min.css")
         link(rel="stylesheet" type="text/css" href="main.css")
         link(rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css")
-        
+        link(rel="stylesheet" type="text/css" href="simplebar.min.css")
         
         // IBM Plex Sans google font
         link(href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans" rel="stylesheet")
@@ -85,5 +84,5 @@ html(lang="en")
         |$('#newGameButton').click(function(){$('#newGameModal').modal("show");});
         | new SimpleBar($('#container')[0]);
         | new SimpleBar($('#lobbyListContainer')[0]);
-        |$('.simplebar-content').css('overflow-x', 'hidden');
+        |$('#container .simplebar-content').css('overflow-x', 'hidden');
         | 

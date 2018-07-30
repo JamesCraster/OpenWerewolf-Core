@@ -211,6 +211,31 @@ app.post("/logout", function (req: any, res: any) {
   req.session.username = "";
   res.send("{}");
 });
+app.post("/newGame", function (req: any, res: any) {
+  console.log('active newGame');
+  let result = 'success';
+  if (typeof req.body.name == 'string' && typeof req.body.type == 'string'
+    && req.body.name.length > 0 && req.body.name.length < 100) {
+    if (grawlix.isObscene(req.body.name)) {
+      result = 'Game names cannot contain profanity.';
+    }
+    for (let i = 0; i < server.games.length; i++) {
+      if (server.games[i].name == req.body.name) {
+        result = 'This game name is already taken. Please choose a different one.';
+      }
+    }
+    if (result == 'success') {
+      if (req.body.type == 'OneDay') {
+        uGameid++;
+        server.addGame(new OneDay(server, req.body.name, uGameid.toString()));
+      } else if (req.body.type == 'Classic') {
+        uGameid++;
+        server.addGame(new Classic(server, req.body.name, uGameid.toString()));
+      }
+    }
+  }
+  res.send('{"result":' + JSON.stringify(result) + '}');
+});
 app.get("*", function (req: any, res: any) {
   res.render("404");
 });
@@ -266,17 +291,6 @@ io.on("connection", function (socket: Socket) {
       } else {
         time = Date.now();
         server.receiveLobbyMessage(thisPlayerId, msg);
-      }
-    }
-  });
-  socket.on("newGame", function (name: string, type: string) {
-    if (typeof name == 'string') {
-      if (type == 'OneDay') {
-        uGameid += 1;
-        server.addGame(new OneDay(server, name, uGameid.toString()));
-      } else if (type == 'Classic') {
-        uGameid += 1;
-        server.addGame(new Classic(server, name, uGameid.toString()));
       }
     }
   });
