@@ -17,6 +17,7 @@ import { Socket } from "../node_modules/@types/socket.io";
 import { Player, Message } from './player';
 import { Game } from './game';
 import { Utils, Colors } from './utils'
+import { thisExpression } from "../node_modules/@types/babel-types";
 var grawlix = require("grawlix");
 
 export class Server {
@@ -208,10 +209,15 @@ export class Server {
                             socket.emit('transitionToLobby');
                         } else if (game != undefined) {
                             socket.emit('transitionToGame', game.name, game.uid);
+                            //send stored messages to the central and left boxes
                             for (let j = 0; j < this._players[i].cache.length; j++) {
                                 socket.emit("message", this._players[i].cache[j].message,
                                     this._players[i].cache[j].textColor, this._players[i].cache[j].backgroundColor,
                                     this._players[i].cache[j].usernameColor);
+                            }
+                            for (let j = 0; j < this._players[i].leftCache.length; j++) {
+                                socket.emit('leftMessage', this._players[i].leftCache[j].message,
+                                    this._players[i].leftCache[j].textColor, this._players[i].leftCache[j].backgroundColor);
                             }
                         }
                         //send the client the correct time

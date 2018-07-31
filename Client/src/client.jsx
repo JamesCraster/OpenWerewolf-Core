@@ -142,6 +142,34 @@ function restart() {
   });
 }
 $(function () {
+  //filtering lobby entries
+  $('#filterAll').click(function () {
+    if ($('.lobbyItem:visible').length == 0) {
+      $('.lobbyItem').fadeIn('fast');
+    } else {
+      $('.lobbyItem:visible').fadeOut('fast', function () {
+        $('.lobbyItem').fadeIn('fast');
+      });
+    }
+  });
+  $('#filterOneDay').click(function () {
+    if ($('.lobbyItem:visible').length == 0) {
+      $('.lobbyItem').fadeIn('fast');
+    } else {
+      $(".lobbyItem:visible").fadeOut('fast', function () {
+        $(".lobbyItem[type='OneDay']").fadeIn('fast');
+      });
+    }
+  })
+  $('#filterClassic').click(function () {
+    if ($('.lobbyItem:visible').length == 0) {
+      $('.lobbyItem').fadeIn('fast');
+    } else {
+      $(".lobbyItem:visible").fadeOut('fast', function () {
+        $(".lobbyItem[type='Classic']").fadeIn('fast');
+      });
+    }
+  })
   if ($('#lobbyItemList .lobbyItem').length == 0) {
     ReactDOM.render(<p id="emptyLobbyItemPrompt" style={{ textAlign: 'center', marginTop: '20px', fontStyle: 'italic', fontSize: '1.1em' }}>Create a new game to play</p>, $('#lobbyItemList')[0]);
   }

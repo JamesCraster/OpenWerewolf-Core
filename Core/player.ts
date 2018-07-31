@@ -71,6 +71,7 @@ export class Player {
     private _cannotRegister: boolean = false;
     private _id: string;
     private _cache: Array<Message> = [];
+    private _leftMessageCache: Array<Message> = [];
     private _time: number = 0;
     private _stopwatch: Stopwatch;
     private _warn: number = 0;
@@ -89,6 +90,7 @@ export class Player {
         this._color = "";
         this.gameClickedLast = '';
         this._cache = [];
+        this._leftMessageCache = [];
     }
     public banFromRegistering(): void {
         this._cannotRegister = true;
@@ -209,12 +211,16 @@ export class Player {
     get cache() {
         return this._cache;
     }
+    get leftCache() {
+        return this._leftMessageCache;
+    }
     //These functions manipulate the two boxes either side of the central chatbox
     public rightSend(msg: string, textColor?: string, backgroundColor?: string): void {
         this.emit("rightMessage", msg, textColor, backgroundColor);
     }
     public leftSend(msg: string, textColor?: string, backgroundColor?: string): void {
         this.emit("leftMessage", msg, textColor, backgroundColor)
+        this._leftMessageCache.push(new Message(msg, textColor, backgroundColor));
     }
     public removeRight(msg: string) {
         this.emit("removeRight", msg);
