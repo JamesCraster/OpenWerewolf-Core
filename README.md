@@ -8,7 +8,7 @@
 ## Contribute:
 All contributors are welcome. Read the [guide.](https://github.com/JamesCraster/OpenWerewolf/wiki/Contributing)
 
-## [Documentation](https://jamescraster.github.io/OpenWerewolf/index.html)
+## [Documentation](https://jamescraster.github.io/OpenWerewolf-Releases/index.html)
 Files are listed to the right.
 
 ## Legal Info:

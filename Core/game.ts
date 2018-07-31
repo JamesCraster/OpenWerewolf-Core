@@ -21,7 +21,7 @@ import { DEBUGMODE } from "../app";
 
 export abstract class Game {
   protected endChat: MessageRoom = new MessageRoom();
-  private endTime: number = 30000;
+  protected endTime: number = 30000;
   private _messageRooms: Array<MessageRoom> = [];
   private _players: Array<Player> = [];
   private _registeredPlayerCount: number = 0;
