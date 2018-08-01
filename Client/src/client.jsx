@@ -394,6 +394,18 @@ $(function () {
     return false;
   });
 
+  $('#leaveGameForm').form({
+    fields: {
+      confirmation: {
+        identifier: 'confirmation',
+        rules: [{
+          type: 'checked',
+          prompt: 'You must confirm by ticking the box'
+        }]
+      }
+    }
+  })
+
   socket.on("transitionToLobby", function () {
     transitionFromLandingToLobby();
   })

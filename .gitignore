@@ -48,3 +48,6 @@ Client/components.js
 
 Client/client.js
 deploy
+
+#get rid of js map files used for debugging
+*.js.map
