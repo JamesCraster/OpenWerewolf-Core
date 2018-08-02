@@ -107,6 +107,15 @@ export class Server {
                     if (player.game.inPlay == false || player.game.inEndChat) {
                         player.game.kick(player);
                         player.resetAfterGame();
+                    } else if (player.game.inPlay) {
+                        //if game is in play, disconnect the player from the client
+                        //without destroying its data (its role etc.)
+                        player.disconnect();
+                        player.game.disconnect(player);
+                        let index = this._players.indexOf(player);
+                        if (index != -1) {
+                            this._players.splice(index, 1)[0];
+                        }
                     }
                 }
             }

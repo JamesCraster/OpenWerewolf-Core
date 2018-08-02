@@ -209,7 +209,9 @@ export abstract class Game {
     }
   }
   public abstract receive(player: Player, msg: string): void;
-  public abstract disconnect(player: Player): void;
+  public disconnect(player: Player): void {
+    this.lineThroughPlayer(player.username, "grey");
+  };
   public kick(player: Player) {
     //this function fails
     for (let i = 0; i < this._messageRooms.length; i++) {

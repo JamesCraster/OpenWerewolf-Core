@@ -20,6 +20,18 @@ test.describe('Homepage static links', function () {
             })
         })
     })
+});
+test.describe('Register', function () {
+    test.before(function () {
+        this.timeout(4000);
+        driver.get('localhost:8081')
+        driver.findElement(By.className('newAccountButton')).click();
+    })
+    test.it('Shows register modal', function () {
+        driver.findElement(By.id('registerModal')).then(function (element) {
+            assert(element.isDisplayed);
+        })
+    })
 })
 test.describe('Log In', function () {
 
