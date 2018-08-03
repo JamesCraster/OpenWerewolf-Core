@@ -257,7 +257,9 @@ io.on("connection", function (socket: Socket) {
   if (oldPlayerId != undefined) {
     thisPlayerId = oldPlayerId;
   }
-
+  socket.on('reloadClient', function () {
+    server.reloadClient(thisPlayerId);
+  });
   socket.on("message", function (msg: string) {
     if (typeof msg === 'string') {
       //filter for spam(consecutive messages within 1/2 a second)

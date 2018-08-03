@@ -405,6 +405,7 @@ $(function () {
         console.log(data);
         //if result is not success, the input was not valid
         if (data.result == "success") {
+          user.socket.emit('reloadClient');
           location.reload();
         } else {
           $('#addNewUserDimmer').dimmer('hide');
@@ -435,6 +436,7 @@ $(function () {
       contentType: 'application/json',
       success: function (data) {
         if (data.result == "success") {
+          user.socket.emit('reloadClient');
           location.reload();
         } else {
           console.log('fail received');
@@ -457,6 +459,7 @@ $(function () {
       dataType: 'json',
       contentType: 'application/json',
       success: function (data) {
+        user.socket.emit('reloadClient');
         location.reload();
       }
     });
@@ -483,15 +486,21 @@ $(function () {
     }
   })
 
+  user.socket.on("reloadClient", function () {
+    console.log('client receipt');
+    if (document.hidden) {
+      location.reload();
+    }
+  })
+
   $('#leaveGameForm').submit(function () {
     user.socket.emit('leaveGame');
   })
-
   user.socket.on("transitionToLobby", function () {
     transitionFromLandingToLobby();
   })
-  user.socket.on("transitionToGame", function (name, uid) {
-    transitionFromLandingToGame(name, uid);
+  user.socket.on("transitionToGame", function (name, uid, inPlay) {
+    transitionFromLandingToGame(name, uid, inPlay);
   })
   user.socket.on("message", function (msg, textColor, backgroundColor, usernameColor) {
     appendMessage(msg, "#chatbox", textColor, backgroundColor, usernameColor);
@@ -706,7 +715,8 @@ function transitionFromLandingToLobby() {
 }
 //only use when the player has created a new tab
 //and should connect to the game they were previously in
-function transitionFromLandingToGame(gameName, uid) {
+function transitionFromLandingToGame(gameName, uid, inGame) {
+  console.log(inGame);
   $('#landingPage').fadeOut('fast', function () {
     $('#playerNames').empty();
     $('#playerNames').append("<li class='gameli'>Players:</li>")
@@ -715,16 +725,29 @@ function transitionFromLandingToGame(gameName, uid) {
       appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
     }
     user.gameClicked = true;
-    user.state = States.INGAMEPLAYING;
-    user.register();
-    $('#topLevel').fadeIn(200);
-    if (gameName) {
-      $('#mainGameName').text(gameName);
+    if (inGame) {
+      user.state = States.INGAMEPLAYING;
+      user.register();
+      $('#topLevel').fadeIn(200);
+      if (gameName) {
+        $('#mainGameName').text(gameName);
+      }
+      //scroll down the game chatbox
+      $("#inner")[0].scrollTop = $("#inner")[0].scrollHeight - $('#inner')[0].clientHeight;
+      $('#topLevel')[0].scrollTop = 0;
+      $('#msg').focus();
+    } else {
+      user.state = States.INGAMEWAITING;
+      user.register();
+      $('#topLevel').fadeIn(200);
+      if (gameName) {
+        $('#mainGameName').text(gameName);
+      }
+      //scroll down the game chatbox
+      $("#inner")[0].scrollTop = $("#inner")[0].scrollHeight - $('#inner')[0].clientHeight;
+      $('#topLevel')[0].scrollTop = 0;
+      $('#msg').focus();
     }
-    //scroll down the game chatbox
-    $("#inner")[0].scrollTop = $("#inner")[0].scrollHeight - $('#inner')[0].clientHeight;
-    $('#topLevel')[0].scrollTop = 0;
-    $('#msg').focus();
   });
 }
 

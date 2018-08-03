@@ -32,6 +32,14 @@ export class Server {
         //join waiting players to games that need them
         setInterval(this.joinGame.bind(this), 50);
     }
+    public reloadClient(id: string) {
+        console.log('reloadClient');
+        let player = this.getPlayer(id);
+        if (player instanceof Player) {
+            player.reloadClient();
+            console.log('called reload');
+        }
+    }
     get games() {
         return this._games;
     }
@@ -116,6 +124,7 @@ export class Server {
                         if (index != -1) {
                             this._players.splice(index, 1)[0];
                         }
+                        player.reloadClient();
                     }
                 }
             }
@@ -217,7 +226,7 @@ export class Server {
                         if (!this._players[i].inGame) {
                             socket.emit('transitionToLobby');
                         } else if (game != undefined) {
-                            socket.emit('transitionToGame', game.name, game.uid);
+                            socket.emit('transitionToGame', game.name, game.uid, game.inPlay);
                             //send stored messages to the central and left boxes
                             for (let j = 0; j < this._players[i].cache.length; j++) {
                                 socket.emit("message", this._players[i].cache[j].message,

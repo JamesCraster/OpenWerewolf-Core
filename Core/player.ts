@@ -92,6 +92,10 @@ export class Player {
         this._cache = [];
         this._leftMessageCache = [];
     }
+    public reloadClient(): void {
+        this.emit('reloadClient');
+        console.log('reloading in player');
+    }
     public banFromRegistering(): void {
         this._cannotRegister = true;
     }
