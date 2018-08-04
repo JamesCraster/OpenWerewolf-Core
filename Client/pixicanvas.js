@@ -1,146 +1,65 @@
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 var app = new PIXI.Application(800, 600, {
-    backgroundColor: 0x168714
+    backgroundColor: 0x2d2d2d
 });
-$('#innerLeftBox').append(app.view);
-var shiftKey = false;
-var cardTexture = PIXI.Texture.fromImage('Assets/Card.png');
-var aceTexture = PIXI.Texture.fromImage("Assets/Ace.png");
+var playerTexture = new PIXI.Texture.fromImage('assets/owwplayer.png');
+let players = [];
 
-
-// create a texture from an image path
-var texture = PIXI.Texture.fromImage('Assets/Card.png');
-
-// Scale mode for pixelation
-PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
-
-for (var i = 0; i < 10; i++) {
-    /*createBunny(
-        Math.floor(Math.random() * app.screen.width),
-        Math.floor(Math.random() * app.screen.height)
-    );*/
-}
-
-function keyboard(keyCode) {
-    let key = {};
-    key.code = keyCode;
-    key.isDown = false;
-    key.isUp = true;
-    key.press = undefined;
-    key.release = undefined;
-    //The `downHandler`
-    key.downHandler = event => {
-        if (event.keyCode === key.code) {
-            if (key.isUp && key.press) key.press();
-            key.isDown = true;
-            key.isUp = false;
-        }
-        //event.preventDefault();
-    };
-
-    //The `upHandler`
-    key.upHandler = event => {
-        if (event.keyCode === key.code) {
-            if (key.isDown && key.release) key.release();
-            key.isDown = false;
-            key.isUp = true;
-        }
-        //event.preventDefault();
-    };
-
-    //Attach event listeners
-    window.addEventListener(
-        "keydown", key.downHandler.bind(key), false
-    );
-    window.addEventListener(
-        "keyup", key.upHandler.bind(key), false
-    );
-    return key;
-}
-upArrow = keyboard(16);
-upArrow.press = () => {
-    shiftKey = true;
-};
-upArrow.release = () => {
-    shiftKey = false;
-}
-
-function createBunny(x, y) {
-
-    // create our little bunny friend..
-    var bunny = new PIXI.Sprite(texture);
-
-    // enable the bunny to be interactive... this will allow it to respond to mouse and touch events
-    bunny.interactive = true;
-
-    bunny.flipped = false;
-
-    // this button mode will mean the hand cursor appears when you roll over the bunny with your mouse
-    bunny.buttonMode = true;
-
-    // center the bunny's anchor point
-    bunny.anchor.set(0.5);
-
-    // make it a bit bigger, so it's easier to grab
-    bunny.scale.set(3);
-
-    // setup events for mouse + touch using
-    // the pointer events
-    bunny
-        .on('pointerdown', onDragStart)
-        .on('pointerup', onDragEnd)
-        .on('pointerupoutside', onDragEnd)
-        .on('pointermove', onDragMove);
-
-    // For mouse-only events
-    // .on('mousedown', onDragStart)
-    // .on('mouseup', onDragEnd)
-    // .on('mouseupoutside', onDragEnd)
-    // .on('mousemove', onDragMove);
-
-    // For touch-only events
-    // .on('touchstart', onDragStart)
-    // .on('touchend', onDragEnd)
-    // .on('touchendoutside', onDragEnd)
-    // .on('touchmove', onDragMove);
-
-    // move the sprite to its designated position
-    bunny.x = x;
-    bunny.y = y;
-
-    // add it to the stage
-    app.stage.addChild(bunny);
-}
-
-function onDragStart(event) {
-    if (shiftKey) {
-        if (this.flipped) {
-            this.texture = cardTexture;
-            this.flipped = false;
-        } else {
-            this.texture = aceTexture;
-            this.flipped = true;
-        }
+class Player {
+    constructor(playerTexture, username) {
+        this.sprite = new PIXI.Sprite(playerTexture);
+        this.sprite.anchor.set(0.5, 0.5);
+        this.sprite.scale.x = 2;
+        this.sprite.scale.y = 2;
+        players.push(this);
+        app.stage.addChild(this.sprite);;
+        this.usernameText = new PIXI.Text(username, {
+            fontFamily: 'Arial',
+            fontSize: 14,
+            fill: 0xff1010,
+            align: 'center'
+        });
+        this.usernameText.x = this.sprite.x;
+        this.usernameText.y = this.sprite.y - 40;
+        this.usernameText.anchor.set(0.5, 0.5);
+        app.stage.addChild(this.usernameText);
     }
-    // store a reference to the data
-    // the reason for this is because of multitouch
-    // we want to track the movement of this particular touch
-    this.data = event.data;
-    this.alpha = 0.5;
-    this.dragging = true;
-}
-
-function onDragEnd() {
-    this.alpha = 1;
-    this.dragging = false;
-    // set the interaction data to null
-    this.data = null;
-}
-
-function onDragMove() {
-    if (this.dragging) {
-        var newPosition = this.data.getLocalPosition(this.parent);
-        this.x = newPosition.x;
-        this.y = newPosition.y;
+    setPos(x, y) {
+        this.sprite.x = x;
+        this.sprite.y = y;
+        this.usernameText.x = x;
+        this.usernameText.y = y - 40;
     }
 }
+var gallowsTexture = new PIXI.Texture.fromImage('assets/gallows.png');
+var gallowsSprite = new PIXI.Sprite(gallowsTexture);
+gallowsSprite.anchor.set(0.5, 0.5);
+gallowsSprite.scale.x = 2;
+gallowsSprite.scale.y = 2;
+gallowsSprite.x = Math.floor(app.renderer.width / 2);
+gallowsSprite.y = Math.floor(app.renderer.height / 2) - 50;
+
+var player1 = new Player(playerTexture, 'jcraster');
+
+function resize() {
+    const parent = app.view.parentNode;
+    app.renderer.resize(parent.clientWidth, parent.clientHeight);
+    gallowsSprite.x = Math.floor(app.renderer.width / 2);
+    gallowsSprite.y = Math.floor(app.renderer.height / 2) - 50;
+    let positions = distributeInCircle(players.length, 200);
+    for (let i = 0; i < players.length; i++) {
+        players[i].setPos(gallowsSprite.x + positions[i][0], gallowsSprite.y + positions[i][1] + 25);
+    }
+}
+
+function distributeInCircle(number, radius) {
+    var positions = [];
+    var angle = 2 * Math.PI / number;
+    for (let i = 0; i < number; i++) {
+        positions.push([radius * Math.sin(angle * i), radius * Math.cos(angle * i)]);
+    }
+    return positions;
+}
+$(window).resize(resize);
+app.stage.addChild(gallowsSprite);
+$('#canvasContainer').append(app.view);

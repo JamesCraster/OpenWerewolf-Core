@@ -165,9 +165,9 @@ newPlayerSound.volume = 0.2;
 var lostPlayerSound = new Audio("162465__kastenfrosch__lostitem.mp3");
 lostPlayerSound.volume = 0.2;
 
-function isClientScrolledDown() {
-  return Math.abs($("#inner")[0].scrollTop + $('#inner')[0].clientHeight - $("#inner")[0].scrollHeight) <= 10;
-}
+//function isClientScrolledDown() {
+//return Math.abs($("#inner")[0].scrollTop + $('#inner')[0].clientHeight - $("#inner")[0].scrollHeight) <= 10;
+//}
 
 function addPlayerToLobbyList(username) {
   $('#lobbyList').append('<li>' + username + '</li>');
@@ -181,7 +181,7 @@ function removePlayerFromLobbyList(username) {
 
 function appendMessage(msg, target, textColor, backgroundColor, usernameColor) {
   //test if client scrolled down
-  var scrollDown = isClientScrolledDown();
+  //var scrollDown = isClientScrolledDown();
   if (textColor && backgroundColor) {
     $(target).append($("<li class='gameli' style='color:" + textColor + ";background-color:" + backgroundColor + "'>"));
   } else if (textColor) {
@@ -203,9 +203,9 @@ function appendMessage(msg, target, textColor, backgroundColor, usernameColor) {
   }
 
   //only scroll down if the client was scrolled down before the message arrived
-  if (scrollDown && target == "#chatbox") {
-    $("#inner")[0].scrollTop = $("#inner")[0].scrollHeight - $('#inner')[0].clientHeight;
-  }
+  //if (scrollDown && target == "#chatbox") {
+  //$("#inner")[0].scrollTop = $("#inner")[0].scrollHeight - $('#inner')[0].clientHeight;
+  //}
 }
 
 function removeMessage(msg, target) {
@@ -687,9 +687,9 @@ $(function () {
       }
     }
   }
-  $(window).resize(function () {
-    $('#inner')[0].scrollTop = $('#inner')[0].scrollHeight;
-  });
+  //$(window).resize(function () {
+  //$('#inner')[0].scrollTop = $('#inner')[0].scrollHeight;
+  //});
 
   $('#registerForm').submit(function () {
     if ($("#registerBox").val() != "") {
@@ -754,7 +754,9 @@ function transitionFromLandingToGame(gameName, uid, inGame) {
 function transitionFromLobbyToGame(gameName) {
   $('#landingPage').fadeOut('fast', function () {
     $('#lobbyContainer').fadeOut(200, function () {
-      $('#topLevel').fadeIn(200);
+      $('#topLevel').fadeIn(200, function () {
+        resize();
+      });
     });
     if (gameName) {
       $('#mainGameName').text(gameName);
