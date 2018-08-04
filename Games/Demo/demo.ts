@@ -1,5 +1,5 @@
 /*
-  Copyright 2017 James V. Craster
+  Copyright 2017-2018 James V. Craster
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -17,9 +17,9 @@ import { MessageRoom, Game, Server, Player, Utils, RoleList, Colors, Stopwatch }
 export class Demo extends Game {
     //declare new message room
     private playerchat: MessageRoom = new MessageRoom();
-    constructor(server: Server) {
+    constructor(server: Server, name: string, uid: string) {
         //first argument is minimum player count, second is maximum player count
-        super(server, 3, 6, "Demo");
+        super(server, 3, 6, "Demo", name, uid);
         //add new message room to the game
         super.addMessageRoom(this.playerchat);
     }

@@ -1,5 +1,5 @@
 //
-    Copyright 2017 James V. Craster
+    Copyright 2017-2018 James V. Craster
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -16,6 +16,9 @@
 //gameNames : array of names of games.
 //gameInPlay : array of booleans, true if nth game in play, false otherwise
 //gameTypes : array of strings, each correspoding to a game title
+//loggedIn : boolean, true if the player is logged in, false otherwise
+//username: the username of the logged in player
+//uids : the unique ids of the games
 
 doctype html
 include includes/lobbyEntry.pug
@@ -23,31 +26,65 @@ html(lang="en")
     head
         meta(charset="UTF-8")
         meta(name="description" content="The online multiplayer werewolf game that's 100% open-source.")
+        link(rel="icon" href="icon.png")
         link(rel="stylesheet" type="text/css" href="main.css")
+        link(rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css")
+        link(rel="stylesheet" type="text/css" href="simplebar.min.css")
+        
         // IBM Plex Sans google font
         link(href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans" rel="stylesheet")
         title OpenWerewolf
     
     // Move scrollbar to bottom on window resize 
     body
-        div(id="lobby")
-            p(id="mainTitle") OpenWerewolf
-            div(id="container")
-                - var n = 0;
-                - while(n < numberOfGames){
-                    +lobbyEntry(n, gameNames[n], players[n], gameInPlay[n], gameTypes[n])
-                    - n += 1;
-                - }
-
-        div(id="topLevel")
+        //need to add hidden attr to all of these...
+        include includes/register.pug
+        include includes/login.pug
+        include includes/leaveGameModal.pug
+        include includes/newGameModal.pug
+        div(id="landingPage")
+            div(class="ui inverted menu")
+                div(class="header item") OpenWerewolf
+                a(class="item" href="/about" target="_blank") About
+                a(class="item" href="https://www.github.com/JamesCraster/OpenWerewolf" target="_blank") Github
+                a(class="item" href="https://discord.gg/AYmr9vc" target="_blank") Discord
+                div(class="ui inverted right menu")
+                    include includes/loggedInRightMenu.pug
+                    
+            div(id="landingPageCenter")
+                p(id="registrationPageTitle") OpenWerewolf
+                div(id="errors")
+                form(id="registerForm" action="" class="messageForm")
+                    div(class="ui action input")
+                        input(type="text" id="registerBox" autocomplete="off" maxlength="10"  placeholder="Enter a nickname..." autofocus)
+                        button(id="registerButton" class="ui inverted button") Submit
+            
+            //p(id="copyrightNotice") OpenWerewolf (C) 2017-2018 James Craster. No warranty. License: 
+                a(style="color:#237bd2" href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank") AGPLv3
+            p(id="copyrightNotice")
+                a(href="/imprint") Copyright and attribution
+        
+        include includes/lobby.pug
+        div(id="topLevel" style="overflow:hidden;")
             include includes/game.pug
+        
+        
     
     script(src="pixi.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js")
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
     script(src="pixicanvas.js")
+    script(src="semantic/dist/semantic.min.js")
+    script(src="simplebar.min.js")
+    script(crossorigin src="https://unpkg.com/react@16/umd/react.development.js")
+    script(crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js")
+    script(src="components.js")
     script(src="client.js")
-
-
-        
-        
+    script
+        |$('.newAccountButton').click(function(){$("#registerModal").modal('show');});        
+        |$('.loginButton').click(function(){$('#loginModal').modal("show");});
+        |$('#newGameButton').click(function(){$('#newGameModal').modal("show");});
+        | new SimpleBar($('#container')[0]);
+        | new SimpleBar($('#lobbyListContainer')[0]);
+        |$('#container .simplebar-content').css('overflow-x', 'hidden');
+        | 
