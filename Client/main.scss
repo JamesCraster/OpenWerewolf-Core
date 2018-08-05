@@ -86,7 +86,6 @@ body {
   height: $central-innerbox-height;
   width: $central-innerbox-width;
   overflow-x: hidden;
-  overflow-y: hidden;
   position: relative;
   border: $standard-border;
   box-sizing: border-box;
@@ -115,7 +114,7 @@ body {
   border: $standard-border;
   height: $central-innerbox-height;
   border-radius: 3px;
-  width: 60%;
+  width: 90%;
   margin-bottom: $msg-height + 2 + $inner-div-margin-bottom;
   box-sizing: border-box;
   overflow-y: auto;
@@ -349,7 +348,12 @@ a {
 
 @media only screen and (min-device-width:430px) {
   #outer {
-    @include standard-flexbox(column);
+    //@include standard-flexbox(column);
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    align-content: stretch;
+    flex-direction: column;
   }
   #lobby {
     @include standard-flexbox(row);

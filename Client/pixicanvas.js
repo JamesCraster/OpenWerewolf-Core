@@ -2,21 +2,23 @@ PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 var app = new PIXI.Application(800, 600, {
     backgroundColor: 0x2d2d2d
 });
-var playerTexture = new PIXI.Texture.fromImage('assets/owwplayer.png');
+var playerTexture = new PIXI.Texture.fromImage('assets/swordplayer.png');
 let players = [];
 
 class Player {
-    constructor(playerTexture, username) {
+    constructor(playerTexture, username, usernameColor) {
+        //usernameColor = usernameColor.substr(1);
         this.sprite = new PIXI.Sprite(playerTexture);
         this.sprite.anchor.set(0.5, 0.5);
         this.sprite.scale.x = 2;
         this.sprite.scale.y = 2;
         players.push(this);
-        app.stage.addChild(this.sprite);;
+        app.stage.addChild(this.sprite);
+        this.username = username;
         this.usernameText = new PIXI.Text(username, {
             fontFamily: 'Arial',
             fontSize: 14,
-            fill: 0xff1010,
+            fill: usernameColor,
             align: 'center'
         });
         this.usernameText.x = this.sprite.x;
@@ -30,6 +32,10 @@ class Player {
         this.usernameText.x = x;
         this.usernameText.y = y - 40;
     }
+    destructor() {
+        app.stage.removeChild(this.sprite);
+        app.stage.removeChild(this.usernameText);
+    }
 }
 var gallowsTexture = new PIXI.Texture.fromImage('assets/gallows.png');
 var gallowsSprite = new PIXI.Sprite(gallowsTexture);
@@ -39,7 +45,28 @@ gallowsSprite.scale.y = 2;
 gallowsSprite.x = Math.floor(app.renderer.width / 2);
 gallowsSprite.y = Math.floor(app.renderer.height / 2) - 50;
 
-var player1 = new Player(playerTexture, 'jcraster');
+function removeAllPlayers() {
+    for (let i = 0; i < players.length; i++) {
+        players[i].destructor();
+    }
+    players = [];
+    resize();
+}
+
+function removePlayer(username) {
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].username == username) {
+            players[i].destructor();
+            players.splice(i, 1);
+            resize();
+        }
+    }
+}
+
+function addPlayer(username, usernameColor) {
+    let newPlayer = new Player(playerTexture, username, usernameColor);
+    resize();
+}
 
 function resize() {
     const parent = app.view.parentNode;
@@ -48,7 +75,7 @@ function resize() {
     gallowsSprite.y = Math.floor(app.renderer.height / 2) - 50;
     let positions = distributeInCircle(players.length, 200);
     for (let i = 0; i < players.length; i++) {
-        players[i].setPos(gallowsSprite.x + positions[i][0], gallowsSprite.y + positions[i][1] + 25);
+        players[i].setPos(gallowsSprite.x + positions[i][0], gallowsSprite.y + positions[i][1] + 20);
     }
 }
 

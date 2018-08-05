@@ -295,8 +295,8 @@ export class Server {
                     player.addPlayerToLobbyList(this._players[i].username);
                 }
             }
-            player.register();
             player.setUsername(msg);
+            player.register();
             this._registeredPlayerCount++;
             for (let i = 0; i < this._players.length; i++) {
                 this._players[i].addPlayerToLobbyList(player.username);

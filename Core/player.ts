@@ -171,7 +171,7 @@ export class Player {
         return this._registered;
     }
     public register() {
-        this.emit('registered');
+        this.emit('registered', this.username);
         this._registered = true;
         console.log('registration called');
     }

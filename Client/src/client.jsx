@@ -135,10 +135,12 @@ function lobbyItemClick(item) {
     if (user.isState(States.NOTASSIGNEDGAME)) {
       $('#chatbox').empty();
       $('#playerNames').empty();
+      removeAllPlayers();
       $('#playerNames').append("<li class='gameli'>Players:</li>")
       var usernameList = $(".lobbyItem[uid=" + $(item).attr('uid') + "] .username");
       for (let i = 0; i < usernameList.length; i++) {
         appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
+        addPlayer($(usernameList[i]).text(), '#FFFFFF');
       }
       user.socket.emit("gameClick", $(item).attr('uid'));
       user.state = States.INGAMEWAITING;
@@ -146,10 +148,12 @@ function lobbyItemClick(item) {
   } else {
     if (user.isState(States.NOTASSIGNEDGAME)) {
       $('#playerNames').empty();
+      removeAllPlayers();
       $('#playerNames').append("<li class='gameli'>Players:</li>")
       var usernameList = $(".lobbyItem[uid=" + $(item).attr('uid') + "] .username");
       for (let i = 0; i < usernameList.length; i++) {
         appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
+        addPlayer($(usernameList[i]).text(), '#FFFFFF');
       }
       appendMessage("This game has already started, please join a different one.", '#chatbox', undefined, "#950d0d");
     }
@@ -165,9 +169,9 @@ newPlayerSound.volume = 0.2;
 var lostPlayerSound = new Audio("162465__kastenfrosch__lostitem.mp3");
 lostPlayerSound.volume = 0.2;
 
-//function isClientScrolledDown() {
-//return Math.abs($("#inner")[0].scrollTop + $('#inner')[0].clientHeight - $("#inner")[0].scrollHeight) <= 10;
-//}
+function isClientScrolledDown() {
+  return Math.abs($("#inner")[0].scrollTop + $('#inner')[0].clientHeight - $("#inner")[0].scrollHeight) <= 10;
+}
 
 function addPlayerToLobbyList(username) {
   $('#lobbyList').append('<li>' + username + '</li>');
@@ -181,7 +185,7 @@ function removePlayerFromLobbyList(username) {
 
 function appendMessage(msg, target, textColor, backgroundColor, usernameColor) {
   //test if client scrolled down
-  //var scrollDown = isClientScrolledDown();
+  var scrollDown = isClientScrolledDown();
   if (textColor && backgroundColor) {
     $(target).append($("<li class='gameli' style='color:" + textColor + ";background-color:" + backgroundColor + "'>"));
   } else if (textColor) {
@@ -509,9 +513,10 @@ $(function () {
   user.socket.on("restart", function () {
     user.restart();
   });
-  user.socket.on("registered", function () {
+  user.socket.on("registered", function (username) {
     transitionFromLandingToLobby();
     user.register();
+    user.username = username;
     leaveGameButton.setNotInPlayClick();
   });
   user.socket.on("clear", function () {
@@ -573,6 +578,7 @@ $(function () {
   });
   user.socket.on("rightMessage", function (msg, textColor, backgroundColor) {
     appendMessage(msg, "#playerNames", textColor, backgroundColor);
+    addPlayer(msg, '#FFFFFF');
   });
   user.socket.on("leftMessage", function (msg, textColor, backgroundColor) {
     appendMessage(msg, "#roleNames", textColor, backgroundColor);
@@ -581,6 +587,8 @@ $(function () {
     removeMessage(msg, "#playerNames");
     removeMessage(" " + msg, '#playerNames');
     console.log("active: " + msg);
+    removePlayer(msg);
+    removePlayer(" " + msg);
   });
   user.socket.on("removeLeft", function (msg) {
     removeMessage(msg, "#roleNames");
@@ -723,6 +731,7 @@ function transitionFromLandingToGame(gameName, uid, inGame) {
     var usernameList = $(".lobbyItem[uid=" + uid + "] .username");
     for (let i = 0; i < usernameList.length; i++) {
       appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
+      addPlayer($(usernameList[i]).text(), '#FFFFFF');
     }
     user.gameClicked = true;
     if (inGame) {
@@ -731,6 +740,7 @@ function transitionFromLandingToGame(gameName, uid, inGame) {
       $('#topLevel').fadeIn(200);
       if (gameName) {
         $('#mainGameName').text(gameName);
+        resize();
       }
       //scroll down the game chatbox
       $("#inner")[0].scrollTop = $("#inner")[0].scrollHeight - $('#inner')[0].clientHeight;
@@ -742,6 +752,7 @@ function transitionFromLandingToGame(gameName, uid, inGame) {
       $('#topLevel').fadeIn(200);
       if (gameName) {
         $('#mainGameName').text(gameName);
+        resize();
       }
       //scroll down the game chatbox
       $("#inner")[0].scrollTop = $("#inner")[0].scrollHeight - $('#inner')[0].clientHeight;
