@@ -76,6 +76,11 @@ function resize() {
     let positions = distributeInCircle(players.length, 200);
     for (let i = 0; i < players.length; i++) {
         players[i].setPos(gallowsSprite.x + positions[i][0], gallowsSprite.y + positions[i][1] + 20);
+        if (positions[i][0] > 1) {
+            players[i].sprite.scale.x = -2;
+        } else {
+            players[i].sprite.scale.x = 2;
+        }
     }
 }
 

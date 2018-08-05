@@ -207,9 +207,9 @@ function appendMessage(msg, target, textColor, backgroundColor, usernameColor) {
   }
 
   //only scroll down if the client was scrolled down before the message arrived
-  //if (scrollDown && target == "#chatbox") {
-  //$("#inner")[0].scrollTop = $("#inner")[0].scrollHeight - $('#inner')[0].clientHeight;
-  //}
+  if (scrollDown && target == "#chatbox") {
+    $("#inner")[0].scrollTop = $("#inner")[0].scrollHeight - $('#inner')[0].clientHeight;
+  }
 }
 
 function removeMessage(msg, target) {
@@ -765,9 +765,8 @@ function transitionFromLandingToGame(gameName, uid, inGame) {
 function transitionFromLobbyToGame(gameName) {
   $('#landingPage').fadeOut('fast', function () {
     $('#lobbyContainer').fadeOut(200, function () {
-      $('#topLevel').fadeIn(200, function () {
-        resize();
-      });
+      $('#topLevel').fadeIn(200);
+      resize();
     });
     if (gameName) {
       $('#mainGameName').text(gameName);
