@@ -27,6 +27,11 @@ $inner-div-margin-bottom: 105px;
   flex-direction: $flex-direction;
 }
 
+@font-face {
+  font-family: Mercutio;
+  src: url(mercutio_basic.ttf);
+}
+
 * {
   margin: 0;
   padding: 0px 0px;

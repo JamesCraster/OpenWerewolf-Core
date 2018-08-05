@@ -51,3 +51,8 @@ deploy
 
 #get rid of js map files used for debugging
 *.js.map
+Client/mercutio_basic.ttf
+Client/mercutio_sc.ttf
+Client/prospero_nbp.ttf
+Client/retganon.ttf
+Client/Pixel-Miners.otf

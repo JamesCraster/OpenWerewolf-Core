@@ -4,6 +4,55 @@ var app = new PIXI.Application(800, 600, {
 });
 var playerTexture = new PIXI.Texture.fromImage('assets/swordplayer.png');
 let players = [];
+var stoneBlockTexture = new PIXI.Texture.fromImage('assets/stoneblock.png');
+
+let stoneBlockContainer = new PIXI.Container();
+stoneBlockContainer
+app.stage.addChild(stoneBlockContainer);
+
+class StoneBlock {
+    constructor(stoneBlockTexture, x, y) {
+        this.sprite = new PIXI.Sprite(stoneBlockTexture);
+        this.sprite.pivot.x = 0.5;
+        this.sprite.pivot.y = 0.5;
+        let rotation = Math.floor(Math.random() * 4);
+        /*switch (rotation) {
+            case 0:
+                this.sprite.rotation = 0;
+                break;
+            case 1:
+                this.sprite.rotation = Math.PI / 2;
+                break;
+            case 2:
+                this.sprite.rotation = Math.PI;
+                break;
+            case 3:
+                this.sprite.rotation = 3 * Math.PI / 2;
+                break;
+        }*/
+        this.sprite.x = x;
+        this.sprite.y = y;
+        this.sprite.scale.x = 2;
+        this.sprite.scale.y = 2;
+        this.sprite.anchor.set(0.5, 0.5);
+        stoneBlockContainer.addChild(this.sprite);
+        //app.stage.addChild(this.sprite);
+    }
+}
+let level = 11;
+for (let y = 0; y < level; y++) {
+    if (y < 6) {
+        for (x = -y; x < y; x++) {
+            let stoneblock = new StoneBlock(stoneBlockTexture, x * 64, y * 64);
+        }
+    } else {
+        for (x = y - 11; x < 11 - y; x++) {
+            let stoneblock = new StoneBlock(stoneBlockTexture, x * 64, y * 64);
+        }
+    }
+}
+//stoneBlockContainer.pivot.x = stoneBlockContainer.width / 2;
+stoneBlockContainer.pivot.y = stoneBlockContainer.height / 2;
 
 class Player {
     constructor(playerTexture, username, usernameColor) {
@@ -73,7 +122,7 @@ function resize() {
     app.renderer.resize(parent.clientWidth, parent.clientHeight);
     gallowsSprite.x = Math.floor(app.renderer.width / 2);
     gallowsSprite.y = Math.floor(app.renderer.height / 2) - 50;
-    let positions = distributeInCircle(players.length, 200);
+    let positions = distributeInCircle(players.length, 170);
     for (let i = 0; i < players.length; i++) {
         players[i].setPos(gallowsSprite.x + positions[i][0], gallowsSprite.y + positions[i][1] + 20);
         if (positions[i][0] > 1) {
@@ -82,6 +131,8 @@ function resize() {
             players[i].sprite.scale.x = 2;
         }
     }
+    stoneBlockContainer.position.x = gallowsSprite.position.x + 33;
+    stoneBlockContainer.position.y = gallowsSprite.position.y - 33;
 }
 
 function distributeInCircle(number, radius) {
