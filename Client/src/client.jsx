@@ -88,7 +88,7 @@ class User {
     $('#playerNames').empty();
     $('#playerNames').append('<li class="gameli">Players:</li>');
     $('#roleNames').empty();
-    $('#roleNames').append('<li class="gameli">Time: 00:00</li>');
+    $('#gameClock').text('Time: 00:00');
     $('#roleNames').append('<li class="gameli">Roles:</li>');
     $('#chatbox').empty();
     $('#leaveGame').off('click');
@@ -107,15 +107,15 @@ class User {
       this.now = Date.now();
       if (this.time < 0) {
         this.time = 0;
-        $($("#roleNames li")[0]).css("color", "#cecece");
+        $('#gameClock').css("color", "#cecece");
         this.warn = -1;
       }
-      $($("#roleNames li")[0]).text("Time: " + this.convertTime(user.time));
+      $('#gameClock').text("Time: " + this.convertTime(user.time));
       if (this.time <= this.warn && this.time >= 0) {
-        $($("#roleNames li")[0]).css("color", "#ff1b1b");
+        $('#gameClock').css("color", "#ff1b1b");
       }
     } else {
-      $($("#roleNames li")[0]).text("Time: " + this.convertTime(0));
+      $('#gameClock').text("Time: " + this.convertTime(0));
     }
   }
   register() {
@@ -606,9 +606,9 @@ $(function () {
   });
   user.socket.on("setTime", function (time, warn) {
     if (time > 0) {
-      $($("#roleNames li")[0]).text("Time: " + user.convertTime(time));
+      $('#gameClock').text("Time: " + user.convertTime(time));
     }
-    $($("#roleNames li")[0]).css("color", "#cecece");
+    $('#gameClock').css("color", "#cecece");
     user.now = Date.now();
     user.time = time;
     user.warn = warn;
