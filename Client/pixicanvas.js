@@ -1,8 +1,20 @@
+WebFontConfig = {
+    custom: {
+        families: ['Mercutio'],
+        urls: ['/main.css']
+    }
+};
+WebFont.load({
+    custom: {
+        families: ['Mercutio']
+    }
+});
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 var app = new PIXI.Application(800, 600, {
     backgroundColor: 0x2d2d2d
 });
-var playerTexture = new PIXI.Texture.fromImage('assets/swordplayer.png');
+var playerTexture = new PIXI.Texture.fromImage('assets/swordplayerbreathing/sprite_0.png');
+var playerTexture2 = new PIXI.Texture.fromImage('assets/swordplayerbreathing/sprite_1.png');
 let players = [];
 var stoneBlockTexture = new PIXI.Texture.fromImage('assets/stoneblock.png');
 
@@ -59,34 +71,47 @@ class Player {
         //usernameColor = usernameColor.substr(1);
         this.sprite = new PIXI.Sprite(playerTexture);
         this.sprite.anchor.set(0.5, 0.5);
-        this.sprite.scale.x = 2;
-        this.sprite.scale.y = 2;
+        //this.sprite.scale.x = 2;
+        //this.sprite.scale.y = 2;
+        this.frameCount = 0;
         players.push(this);
         app.stage.addChild(this.sprite);
         this.username = username;
         this.usernameText = new PIXI.Text(username, {
-            fontFamily: 'Arial',
-            fontSize: 14,
+            fontFamily: 'Mercutio',
+            fontSize: 128,
             fill: usernameColor,
-            align: 'center'
+            align: 'center',
+            resolution: 20
         });
-        this.usernameText.x = this.sprite.x;
-        this.usernameText.y = this.sprite.y - 40;
+        this.usernameText.scale.x = 0.25;
+        this.usernameText.scale.y = 0.25;
+        this.usernameText.x = Math.floor(this.sprite.x);
+        this.usernameText.y = Math.floor(this.sprite.y - 45);
         this.usernameText.anchor.set(0.5, 0.5);
         app.stage.addChild(this.usernameText);
+        setInterval(this.breathe.bind(this), 1500);
+    }
+    breathe() {
+        if (this.frameCount % 2 == 0) {
+            this.sprite.texture = playerTexture;
+        } else {
+            this.sprite.texture = playerTexture2;
+        }
+        this.frameCount++;
     }
     setPos(x, y) {
-        this.sprite.x = x;
-        this.sprite.y = y;
-        this.usernameText.x = x;
-        this.usernameText.y = y - 40;
+        this.sprite.x = Math.floor(x);
+        this.sprite.y = Math.floor(y);
+        this.usernameText.x = Math.floor(x);
+        this.usernameText.y = Math.floor(y - 45);
     }
     destructor() {
         app.stage.removeChild(this.sprite);
         app.stage.removeChild(this.usernameText);
     }
 }
-var gallowsTexture = new PIXI.Texture.fromImage('assets/gallows.png');
+var gallowsTexture = new PIXI.Texture.fromImage('assets/newgallows.png');
 var gallowsSprite = new PIXI.Sprite(gallowsTexture);
 gallowsSprite.anchor.set(0.5, 0.5);
 gallowsSprite.scale.x = 2;
@@ -126,9 +151,9 @@ function resize() {
     for (let i = 0; i < players.length; i++) {
         players[i].setPos(gallowsSprite.x + positions[i][0], gallowsSprite.y + positions[i][1] + 20);
         if (positions[i][0] > 1) {
-            players[i].sprite.scale.x = -2;
+            players[i].sprite.scale.x = -1;
         } else {
-            players[i].sprite.scale.x = 2;
+            players[i].sprite.scale.x = 1;
         }
     }
     stoneBlockContainer.position.x = gallowsSprite.position.x + 33;
