@@ -189,6 +189,7 @@ export abstract class Game {
       this._players[i].sound("NEWPLAYER");
     }
     player.color = this.colorPool[0];
+    player.headerSend([{ text: 'Welcome, ', color: Colors.white }, { text: player.username, color: player.color }]);
     this.colorPool.splice(0, 1);
     player.startVote = false;
     this._players.push(player);

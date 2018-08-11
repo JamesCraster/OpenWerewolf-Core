@@ -143,12 +143,12 @@ export class Server {
                         player.send(
                             "Hi, " +
                             player.username +
-                            "! You have joined Game " +
-                            (j + 1).toString() +
-                            "."
+                            "! You have joined '" +
+                            player.game.name +
+                            "'."
                         );
                         this._games[j].broadcast(player.username + " has joined the game");
-                        player.send("There are " + (this._games[j].playerCount + 1).toString() + " players in this game");
+                        //player.send("There are " + (this._games[j].playerCount + 1).toString() + " players in this game");
                         if (this._games[j].minimumPlayersNeeded - 1 > 0) {
                             this._games[j].broadcast("The game will begin when at least " + (this._games[j].minimumPlayersNeeded - 1).toString() + " more players have joined");
                             //if just hit the minimum number of players

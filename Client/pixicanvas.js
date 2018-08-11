@@ -1,3 +1,4 @@
+var mainText = undefined;
 WebFontConfig = {
     custom: {
         families: ['Mercutio'],
@@ -7,8 +8,88 @@ WebFontConfig = {
 WebFont.load({
     custom: {
         families: ['Mercutio']
+    },
+    active: function () {
+        //when the font is loaded, create the main text.
+        mainText = new StandardMainTextList([new StandardMainText('Welcome, '), new StandardMainText('james')])
+        /*mainText = new PIXI.Text('Welcome, james', {
+            fontFamily: 'Mercutio',
+            fontSize: 512,
+            fill: 0xFFFFFF,
+            align: 'center',
+            resolution: 20
+        });
+        mainText.scale.x = 0.125;
+        mainText.scale.y = 0.125;
+        mainText.x = Math.floor(app.renderer.width / 2) - mainText.width / 2;
+        mainText.y = 25;
+        app.stage.addChild(mainText);*/
     }
 });
+
+class StandardMainText {
+    constructor(text, color) {
+        console.log(color);
+        if (color == undefined) {
+            color = 0xFFFFFF;
+        } else {
+            color = color.substr(1);
+            color = "0x" + color;
+            color = parseInt(color);
+        }
+        console.log(color);
+        this.object = new PIXI.Text(text, {
+            fontFamily: 'Mercutio',
+            fontSize: 512,
+            fill: color,
+            align: 'center',
+            resolution: 20
+        });
+        this.object.scale.x = 0.125;
+        this.object.scale.y = 0.125;
+    }
+}
+class StandardMainTextList {
+    constructor(standardMainTextArray) {
+        this.container = new PIXI.Container();
+        app.stage.addChild(this.container);
+        this.create(standardMainTextArray);
+        this.fadeOutTimeout = undefined;
+    }
+    clear() {
+        this.container.removeChildren();
+    }
+    create(standardMainTextArray) {
+        this.clear();
+        //fade in if faded out
+        this.container.alpha = 1;
+        let point = 0;
+        for (let i = 0; i < standardMainTextArray.length; i++) {
+            standardMainTextArray[i].object.x = point;
+            this.container.addChild(standardMainTextArray[i].object);
+            point += standardMainTextArray[i].object.width;
+        }
+        this.reposition();
+    }
+    fadeOut(time) {
+        this.fadeOutTimeout = setTimeout(function () {
+            let fadingAnimation = setInterval(function () {
+                this.container.alpha = this.container.alpha * 0.8;
+                //if transparent enough to be invisible
+                if (this.container.alpha < 0.01) {
+                    this.container.alpha = 0;
+                    clearInterval(fadingAnimation);
+                }
+            }.bind(this), 10);
+        }.bind(this), time);
+    }
+    //called on window resize also
+    reposition() {
+        this.container.x = Math.floor(app.renderer.width / 2) - this.container.width / 2;
+        this.container.y = 25;
+    }
+}
+//set scaling to work well with pixel art
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 var app = new PIXI.Application(800, 600, {
     backgroundColor: 0x2d2d2d
@@ -27,28 +108,12 @@ class StoneBlock {
         this.sprite = new PIXI.Sprite(stoneBlockTexture);
         this.sprite.pivot.x = 0.5;
         this.sprite.pivot.y = 0.5;
-        let rotation = Math.floor(Math.random() * 4);
-        /*switch (rotation) {
-            case 0:
-                this.sprite.rotation = 0;
-                break;
-            case 1:
-                this.sprite.rotation = Math.PI / 2;
-                break;
-            case 2:
-                this.sprite.rotation = Math.PI;
-                break;
-            case 3:
-                this.sprite.rotation = 3 * Math.PI / 2;
-                break;
-        }*/
         this.sprite.x = x;
         this.sprite.y = y;
         this.sprite.scale.x = 2;
         this.sprite.scale.y = 2;
         this.sprite.anchor.set(0.5, 0.5);
         stoneBlockContainer.addChild(this.sprite);
-        //app.stage.addChild(this.sprite);
     }
 }
 let level = 11;
@@ -73,6 +138,7 @@ class Player {
         this.sprite.anchor.set(0.5, 0.5);
         //this.sprite.scale.x = 2;
         //this.sprite.scale.y = 2;
+        usernameColor = 0xFFFFFF;
         this.frameCount = 0;
         players.push(this);
         app.stage.addChild(this.sprite);
@@ -119,6 +185,16 @@ gallowsSprite.scale.y = 2;
 gallowsSprite.x = Math.floor(app.renderer.width / 2);
 gallowsSprite.y = Math.floor(app.renderer.height / 2) - 50;
 
+var mainMessageClearTimeout;
+
+function receiveMainMessage(text) {
+    clearTimeout(mainMessageClearTimeout);
+    setMainText(text);
+    mainMessageClearTimeout = setTimeout(function () {
+        setMainText("")
+    }, 2000);
+}
+
 function removeAllPlayers() {
     for (let i = 0; i < players.length; i++) {
         players[i].destructor();
@@ -139,14 +215,21 @@ function removePlayer(username) {
 
 function addPlayer(username, usernameColor) {
     let newPlayer = new Player(playerTexture, username, usernameColor);
+    if (mainText) {
+        this.app.stage.removeChild(mainText.container);
+        this.app.stage.addChild(mainText.container);
+    }
     resize();
 }
 
 function resize() {
     const parent = app.view.parentNode;
     app.renderer.resize(parent.clientWidth, parent.clientHeight);
+    if (mainText) {
+        mainText.reposition();
+    }
     gallowsSprite.x = Math.floor(app.renderer.width / 2);
-    gallowsSprite.y = Math.floor(app.renderer.height / 2) - 50;
+    gallowsSprite.y = Math.floor(app.renderer.height / 2) - 10;
     let positions = distributeInCircle(players.length, 170);
     for (let i = 0; i < players.length; i++) {
         players[i].setPos(gallowsSprite.x + positions[i][0], gallowsSprite.y + positions[i][1] + 20);

@@ -509,7 +509,18 @@ $(function () {
   user.socket.on("message", function (msg, textColor, backgroundColor, usernameColor) {
     appendMessage(msg, "#chatbox", textColor, backgroundColor, usernameColor);
   });
-
+  user.socket.on("headerTextMessage", function (standardArray) {
+    var out = [];
+    for (let i = 0; i < standardArray.length; i++) {
+      console.log(standardArray[i].color);
+      out.push(new StandardMainText(standardArray[i].text, standardArray[i].color))
+    }
+    if (mainText) {
+      mainText.clear();
+      mainText.create(out);
+      mainText.fadeOut(2500);
+    }
+  })
   user.socket.on("restart", function () {
     user.restart();
   });

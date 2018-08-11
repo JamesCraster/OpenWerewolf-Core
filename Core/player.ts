@@ -14,7 +14,7 @@
 "use strict";
 
 import { Socket } from "../node_modules/@types/socket.io";
-import { NameColorPair, Stopwatch } from "./utils";
+import { NameColorPair, Stopwatch, Colors } from "./utils";
 import { Game } from "./game";
 //set this to what the admin password should be
 const password = "goat";
@@ -22,6 +22,7 @@ const password = "goat";
 interface PlayerData {
     [key: string]: any;
 }
+
 
 //data structure for messages, used when storing them for retrieval (e.g on page reload)
 export class Message {
@@ -114,7 +115,7 @@ export class Player {
      * @param {string} event 
      * @memberof Player
      */
-    public emit(event: string, ...args: Array<string | number | string[] | boolean | undefined>) {
+    public emit(event: string, ...args: Array<string | number | string[] | boolean | undefined | Array<{ text: string, color: string | Colors }>>) {
         for (let i = 0; i < this._sockets.length; i++) {
             this._sockets[i].emit(event, ...args);
         }
@@ -298,5 +299,9 @@ export class Player {
     }
     public removeGameFromLobby(uid: string) {
         this.emit('removeGameFromLobby', uid)
+    }
+    public headerSend(array: Array<{ text: string, color: string | Colors }>) {
+        console.log(array);
+        this.emit('headerTextMessage', array);
     }
 }
