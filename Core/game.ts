@@ -233,6 +233,11 @@ export abstract class Game {
     player.title = "OpenWerewolf";
     this.broadcast(player.username + " has disconnected");
   }
+  protected headerBroadcast(array: Array<{ text: string, color: string }>) {
+    for (let i = 0; i < this._players.length; i++) {
+      this._players[i].headerSend(array);
+    }
+  }
   protected beforeStart() {
     for (let i = 0; i < this._players.length; i++) {
       this._players[i].sound("NEWGAME");
@@ -241,6 +246,7 @@ export abstract class Game {
     this._inPlay = true;
     this._server.markGameStatusInLobby(this, "IN PLAY");
     this.broadcast("*** NEW GAME ***", Colors.brightGreen);
+    this.headerBroadcast([{ text: '*** NEW GAME ***', color: Colors.brightGreen }]);
   }
   protected afterEnd() {
     for (let i = 0; i < this._messageRooms.length; i++) {

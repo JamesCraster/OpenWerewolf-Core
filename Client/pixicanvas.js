@@ -11,7 +11,7 @@ WebFont.load({
     },
     active: function () {
         //when the font is loaded, create the main text.
-        mainText = new StandardMainTextList([new StandardMainText('Welcome, '), new StandardMainText('james')])
+        mainText = new StandardMainTextList([new StandardMainText('')])
         /*mainText = new PIXI.Text('Welcome, james', {
             fontFamily: 'Mercutio',
             fontSize: 512,
@@ -61,6 +61,7 @@ class StandardMainTextList {
     }
     create(standardMainTextArray) {
         this.clear();
+        clearTimeout(this.fadeOutTimeout);
         //fade in if faded out
         this.container.alpha = 1;
         let point = 0;
