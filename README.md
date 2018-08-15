@@ -3,7 +3,7 @@
 > A game engine for making multiplayer text-based games
 
 ## Screenshot:
-![An image of the OpenWerewolf client](https://github.com/JamesCraster/OpenWerewolf/blob/master/Screenshot.png)
+![An image of the OpenWerewolf client](https://github.com/JamesCraster/OpenWerewolf-Core/blob/master/Screenshot.png)
 
 ## Contribute:
 All contributors are welcome. Read the [guide.](https://github.com/JamesCraster/OpenWerewolf/wiki/Contributing)
