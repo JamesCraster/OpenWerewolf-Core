@@ -22,8 +22,8 @@ class States {
   static get INGAMEPLAYING() {
     return "IN GAME PLAYING";
   }
-  static get INGAMEENDED() {
-    return "IN GAME ENDED";
+  static get GAMEENDED() {
+    return "GAME ENDED";
   }
 }
 class LeaveGameButton {
@@ -95,10 +95,10 @@ class User {
     leaveGameButton.setNotInPlayClick();
   }
   convertTime(duration) {
-    var seconds = parseInt((duration / 1000) % 60);
-    var minutes = parseInt((duration / (1000 * 60)) % 60);
-    var minutes = (minutes < 10) ? "0" + minutes : minutes;
-    var seconds = (seconds < 10) ? "0" + seconds : seconds;
+    let seconds = parseInt((duration / 1000) % 60);
+    let minutes = parseInt((duration / (1000 * 60)) % 60);
+    let minutes = (minutes < 10) ? "0" + minutes : minutes;
+    let seconds = (seconds < 10) ? "0" + seconds : seconds;
     return minutes + ":" + seconds;
   }
   updateTime() {
@@ -137,7 +137,7 @@ function lobbyItemClick(item) {
       $('#playerNames').empty();
       removeAllPlayers();
       $('#playerNames').append("<li class='gameli'>Players:</li>")
-      var usernameList = $(".lobbyItem[uid=" + $(item).attr('uid') + "] .username");
+      let usernameList = $(".lobbyItem[uid=" + $(item).attr('uid') + "] .username");
       for (let i = 0; i < usernameList.length; i++) {
         appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
         addPlayer($(usernameList[i]).text(), '#FFFFFF');
@@ -150,7 +150,7 @@ function lobbyItemClick(item) {
       $('#playerNames').empty();
       removeAllPlayers();
       $('#playerNames').append("<li class='gameli'>Players:</li>")
-      var usernameList = $(".lobbyItem[uid=" + $(item).attr('uid') + "] .username");
+      let usernameList = $(".lobbyItem[uid=" + $(item).attr('uid') + "] .username");
       for (let i = 0; i < usernameList.length; i++) {
         appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
         addPlayer($(usernameList[i]).text(), '#FFFFFF');
@@ -162,11 +162,11 @@ function lobbyItemClick(item) {
 
 let user = new User();
 
-var notificationSound = new Audio("162464__kastenfrosch__message.mp3");
+let notificationSound = new Audio("162464__kastenfrosch__message.mp3");
 notificationSound.volume = 0.4;
-var newPlayerSound = new Audio("162476__kastenfrosch__gotitem.mp3");
+let newPlayerSound = new Audio("162476__kastenfrosch__gotitem.mp3");
 newPlayerSound.volume = 0.2;
-var lostPlayerSound = new Audio("162465__kastenfrosch__lostitem.mp3");
+let lostPlayerSound = new Audio("162465__kastenfrosch__lostitem.mp3");
 lostPlayerSound.volume = 0.2;
 
 function isClientScrolledDown() {
@@ -185,7 +185,7 @@ function removePlayerFromLobbyList(username) {
 
 function appendMessage(msg, target, textColor, backgroundColor, usernameColor) {
   //test if client scrolled down
-  var scrollDown = isClientScrolledDown();
+  let scrollDown = isClientScrolledDown();
   if (textColor && backgroundColor) {
     $(target).append($("<li class='gameli' style='color:" + textColor + ";background-color:" + backgroundColor + "'>"));
   } else if (textColor) {
@@ -227,7 +227,7 @@ function lineThroughPlayer(msg, color) {
   }).css("text-decoration", "line-through");
 }
 
-var lobbyChatListContainerSimpleBar = new SimpleBar($('#lobbyChatListContainer')[0]);
+let lobbyChatListContainerSimpleBar = new SimpleBar($('#lobbyChatListContainer')[0]);
 
 $(function () {
   //filtering lobby entries
@@ -510,7 +510,7 @@ $(function () {
     appendMessage(msg, "#chatbox", textColor, backgroundColor, usernameColor);
   });
   user.socket.on("headerTextMessage", function (standardArray) {
-    var out = [];
+    let out = [];
     for (let i = 0; i < standardArray.length; i++) {
       console.log(standardArray[i].color);
       out.push(new StandardMainText(standardArray[i].text, standardArray[i].color))
@@ -547,7 +547,7 @@ $(function () {
   });
   user.socket.on("addNewGameToLobby", function (name, type, uid) {
     $('#emptyLobbyItemPrompt').css('display', 'none');
-    var div = document.createElement('div');
+    let div = document.createElement('div');
     div.className = "lobbyItemReactContainer"
     $('#container .simplebar-content #lobbyItemList').prepend(div);
     ReactDOM.render(< LobbyItem name={name} type={type} uid={uid} ranked='false' />,
@@ -562,6 +562,7 @@ $(function () {
   })
   user.socket.on("endChat", function () {
     console.log('active');
+    user.state = States.GAMEENDED;
     leaveGameButton.setNotInPlayClick();
   });
   user.socket.on("sound", function (sound) {
@@ -637,7 +638,7 @@ $(function () {
       $('#container div[uid=' + number.toString() + '] p:first span:last').html("OPEN");
       $('#container div[uid=' + number.toString() + ']').attr('inPlay', "false");
     }
-    var div = $('#container div[uid=' + number.toString() + '] p:last span:first');
+    let div = $('#container div[uid=' + number.toString() + '] p:last span:first');
     div.empty();
     for (let i = 0; i < playerNames.length; i++) {
       if (i == 0) {
@@ -656,7 +657,7 @@ $(function () {
   })
   //removes player from game list
   user.socket.on("removePlayerFromGameList", function (name, game) {
-    var spanList = $('#container div[uid=' + game + '] p:last span:first span');
+    let spanList = $('#container div[uid=' + game + '] p:last span:first span');
     for (let i = 0; i < spanList.length; i++) {
       if ($(spanList[i]).text() == name || $(spanList[i]).text() == " " + name) {
         //remove the separating comma if it exists 
@@ -672,8 +673,8 @@ $(function () {
     }
   });
   user.socket.on("addPlayerToGameList", function (name, color, game) {
-    var div = $('#container div[uid=' + game + '] p:last span:first');
-    var spanList = $('#container div[uid=' + game + '] p:last .username');
+    let div = $('#container div[uid=' + game + '] p:last span:first');
+    let spanList = $('#container div[uid=' + game + '] p:last .username');
     if (spanList.length == 0) {
       div.append('<span class="username" style="color:' + color + '">' + name);
     } else {
@@ -739,7 +740,7 @@ function transitionFromLandingToGame(gameName, uid, inGame) {
   $('#landingPage').fadeOut('fast', function () {
     $('#playerNames').empty();
     $('#playerNames').append("<li class='gameli'>Players:</li>")
-    var usernameList = $(".lobbyItem[uid=" + uid + "] .username");
+    let usernameList = $(".lobbyItem[uid=" + uid + "] .username");
     for (let i = 0; i < usernameList.length; i++) {
       appendMessage($(usernameList[i]).text(), "#playerNames", $(usernameList[i]).css('color'));
       addPlayer($(usernameList[i]).text(), '#FFFFFF');

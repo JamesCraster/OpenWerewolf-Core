@@ -1,4 +1,16 @@
-var mainText = undefined;
+/*
+  Copyright 2017-2018 James V. Craster
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+let mainText = undefined;
 WebFontConfig = {
     custom: {
         families: ['Mercutio'],
@@ -92,16 +104,15 @@ class StandardMainTextList {
 }
 //set scaling to work well with pixel art
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
-var app = new PIXI.Application(800, 600, {
+let app = new PIXI.Application(800, 600, {
     backgroundColor: 0x2d2d2d
 });
-var playerTexture = new PIXI.Texture.fromImage('assets/swordplayerbreathing/sprite_0.png');
-var playerTexture2 = new PIXI.Texture.fromImage('assets/swordplayerbreathing/sprite_1.png');
+const playerTexture = new PIXI.Texture.fromImage('assets/swordplayerbreathing/sprite_0.png');
+const playerTexture2 = new PIXI.Texture.fromImage('assets/swordplayerbreathing/sprite_1.png');
 let players = [];
-var stoneBlockTexture = new PIXI.Texture.fromImage('assets/stoneblock.png');
+const stoneBlockTexture = new PIXI.Texture.fromImage('assets/stoneblock.png');
 
-let stoneBlockContainer = new PIXI.Container();
-stoneBlockContainer
+const stoneBlockContainer = new PIXI.Container();
 app.stage.addChild(stoneBlockContainer);
 
 class StoneBlock {
@@ -178,15 +189,15 @@ class Player {
         app.stage.removeChild(this.usernameText);
     }
 }
-var gallowsTexture = new PIXI.Texture.fromImage('assets/newgallows.png');
-var gallowsSprite = new PIXI.Sprite(gallowsTexture);
+let gallowsTexture = new PIXI.Texture.fromImage('assets/gallows.png');
+let gallowsSprite = new PIXI.Sprite(gallowsTexture);
 gallowsSprite.anchor.set(0.5, 0.5);
 gallowsSprite.scale.x = 2;
 gallowsSprite.scale.y = 2;
 gallowsSprite.x = Math.floor(app.renderer.width / 2);
 gallowsSprite.y = Math.floor(app.renderer.height / 2) - 50;
 
-var mainMessageClearTimeout;
+let mainMessageClearTimeout;
 
 function receiveMainMessage(text) {
     clearTimeout(mainMessageClearTimeout);
@@ -215,10 +226,10 @@ function removePlayer(username) {
 }
 
 function addPlayer(username, usernameColor) {
-    let newPlayer = new Player(playerTexture, username, usernameColor);
+    const newPlayer = new Player(playerTexture, username, usernameColor);
     if (mainText) {
-        this.app.stage.removeChild(mainText.container);
-        this.app.stage.addChild(mainText.container);
+        app.stage.removeChild(mainText.container);
+        app.stage.addChild(mainText.container);
     }
     resize();
 }
@@ -245,8 +256,8 @@ function resize() {
 }
 
 function distributeInCircle(number, radius) {
-    var positions = [];
-    var angle = 2 * Math.PI / number;
+    let positions = [];
+    let angle = 2 * Math.PI / number;
     for (let i = 0; i < number; i++) {
         positions.push([radius * Math.sin(angle * i), radius * Math.cos(angle * i)]);
     }

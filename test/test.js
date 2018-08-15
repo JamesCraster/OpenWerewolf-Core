@@ -1,11 +1,11 @@
 const webdriver = require('selenium-webdriver');
-var assert = require('assert');
+let assert = require('assert');
 const {
     By
 } = require('selenium-webdriver');
-var test = require('selenium-webdriver/testing');
+let test = require('selenium-webdriver/testing');
 
-var driver = new webdriver.Builder().forBrowser('chrome').build();
+let driver = new webdriver.Builder().forBrowser('chrome').build();
 driver.manage().timeouts().implicitlyWait(2000);
 test.describe('Homepage static links', function () {
     test.before(function () {

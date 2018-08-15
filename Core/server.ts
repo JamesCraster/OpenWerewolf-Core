@@ -18,7 +18,7 @@ import { Player, Message } from './player';
 import { Game } from './game';
 import { Utils, Colors } from './utils'
 import { thisExpression } from "../node_modules/@types/babel-types";
-var grawlix = require("grawlix");
+const grawlix = require("grawlix");
 
 export class Server {
     private _players: Array<Player> = [];
@@ -174,8 +174,8 @@ export class Server {
         return username;
     }
     private validateUsername(player: Player, username: string) {
-        var letters = /^[A-Za-z]+$/;
-        for (var i = 0; i < this._players.length; i++) {
+        let letters = /^[A-Za-z]+$/;
+        for (let i = 0; i < this._players.length; i++) {
             if (this._players[i].username == username) {
                 player.registrationError(
                     "This username has already been taken by someone"
@@ -353,7 +353,7 @@ export class Server {
 
     }
     public isPlayer(id: string): boolean {
-        for (var i = 0; i < this._players.length; i++) {
+        for (let i = 0; i < this._players.length; i++) {
             if (this._players[i].id == id) {
                 return true;
             }
@@ -361,7 +361,7 @@ export class Server {
         return false;
     }
     public getPlayer(id: string): Player | undefined {
-        for (var i = 0; i < this._players.length; i++) {
+        for (let i = 0; i < this._players.length; i++) {
             if (this._players[i].id == id) {
                 return this._players[i];
             }
@@ -411,11 +411,11 @@ export class Server {
         }
     }
     public kick(id: string): void {
-        var player = this.getPlayer(id);
+        let player = this.getPlayer(id);
         if (player instanceof Player) {
             //if player has no sockets (i.e no one is connected to this player)
             if (player.socketCount == 0) {
-                var index = this._players.indexOf(player);
+                let index = this._players.indexOf(player);
                 if (index !== -1) {
                     //if the player isn't in a game in play, remove them
                     if (!player.inGame || !player.registered) {

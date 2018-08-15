@@ -100,7 +100,7 @@ export abstract class Game {
     }
   }
   public getPlayer(id: string): Player | undefined {
-    for (var i = 0; i < this._players.length; i++) {
+    for (let i = 0; i < this._players.length; i++) {
       if (this._players[i].id == id) {
         return this._players[i];
       }
@@ -109,7 +109,7 @@ export abstract class Game {
     return undefined;
   }
   public isPlayer(id: string): boolean {
-    for (var i = 0; i < this._players.length; i++) {
+    for (let i = 0; i < this._players.length; i++) {
       if (this._players[i].id == id) {
         return true;
       }
@@ -205,7 +205,7 @@ export abstract class Game {
     }
   }
   public broadcast(msg: string, textColor?: string, backgroundColor?: string) {
-    for (var i = 0; i < this._players.length; i++) {
+    for (let i = 0; i < this._players.length; i++) {
       this._players[i].send(msg, textColor, backgroundColor);
     }
   }
@@ -409,7 +409,7 @@ class MessageRoomMember {
 export class MessageRoom {
   private _members: Array<MessageRoomMember> = [];
   public getMemberById(id: string): MessageRoomMember | undefined {
-    for (var i = 0; i < this._members.length; i++) {
+    for (let i = 0; i < this._members.length; i++) {
       if (this._members[i].id == id) {
         return this._members[i];
       }
@@ -424,7 +424,7 @@ export class MessageRoom {
     let messageRoomSender = this.getMemberById(sender.id);
     if (messageRoomSender instanceof MessageRoomMember) {
       if (!messageRoomSender.muted) {
-        for (var i = 0; i < this._members.length; i++) {
+        for (let i = 0; i < this._members.length; i++) {
           if (!this._members[i].deafened) {
             this._members[i].send(msg, textColor, backgroundColor, usernameColor);
             //console.log("message sent to: " + this._members[i].username);
@@ -434,7 +434,7 @@ export class MessageRoom {
     }
   }
   public broadcast(msg: string, textColor?: string, backgroundColor?: string) {
-    for (var i = 0; i < this._members.length; i++) {
+    for (let i = 0; i < this._members.length; i++) {
       if (!this._members[i].deafened) {
         this._members[i].send(msg, textColor, backgroundColor);
       }
