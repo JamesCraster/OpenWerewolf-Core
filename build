@@ -47,13 +47,19 @@ while [ "$1" != "" ]; do
       cp -r Core release
       
       #minify css on clientside
-      cleancss -o release/Client/main.css Client/main.css
+      #cleancss -o release/Client/main.css Client/main.css
       cp Client/*.mp3 release/Client
+      cp Client/main.css release/Client/main.css
       cp Client/components.js release/Client/components.js
       cp Client/icon.png release/Client/icon.png
       cp Client/simplebar.min.js release/Client/simplebar.min.js
       cp Client/client.js release/Client/client.js
       cp Client/simplebar.min.css release/Client/simplebar.min.css
+      cp -r Client/assets release/Client/assets
+      cp Client/mercutio_basic.ttf release/Client/mercutio_basic.ttf
+      cp Client/pixi.min.js release/Client/pixi.min.js
+      cp Client/webfontloader.js release/Client/webfontloader.js
+      cp Client/pixicanvas.js release/Client/pixicanvas.js
 
       cp Games/OneDay/oneDay.js release/Games/OneDay
       cp Games/OneDay/LICENSE release/Games/OneDay

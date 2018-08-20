@@ -237,6 +237,7 @@ app.post("/newGame", function (req: any, res: any) {
   }
   res.send('{"result":' + JSON.stringify(result) + '}');
 });
+app.get("*.png", function () { });
 app.get("*", function (req: any, res: any) {
   res.render("404");
 });
